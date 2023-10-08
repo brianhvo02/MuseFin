@@ -7,6 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		7178703B2AD21A2F00C07423 /* SwiftAudioEx in Frameworks */ = {isa = PBXBuildFile; productRef = 7178703A2AD21A2F00C07423 /* SwiftAudioEx */; };
+		7178703F2AD242FD00C07423 /* MusicPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7178703E2AD242FD00C07423 /* MusicPlayer.swift */; };
+		717870412AD24B9D00C07423 /* BlurHashDecoder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 717870402AD24B9D00C07423 /* BlurHashDecoder.swift */; };
+		717870432AD276E200C07423 /* NavScrollView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 717870422AD276E200C07423 /* NavScrollView.swift */; };
 		71A07AEA2ACB496C00DD899A /* MuseFinApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 71A07AE92ACB496C00DD899A /* MuseFinApp.swift */; };
 		71A07AEC2ACB496C00DD899A /* LibraryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 71A07AEB2ACB496C00DD899A /* LibraryView.swift */; };
 		71A07AEE2ACB497200DD899A /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 71A07AED2ACB497200DD899A /* Assets.xcassets */; };
@@ -22,7 +26,7 @@
 		71A07B0F2ACCC17C00DD899A /* AlbumsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 71A07B0E2ACCC17C00DD899A /* AlbumsView.swift */; };
 		71A07B112ACCC44F00DD899A /* Album.swift in Sources */ = {isa = PBXBuildFile; fileRef = 71A07B102ACCC44F00DD899A /* Album.swift */; };
 		71A07B132ACCC85000DD899A /* Item.swift in Sources */ = {isa = PBXBuildFile; fileRef = 71A07B122ACCC85000DD899A /* Item.swift */; };
-		71A07B152ACCE0C400DD899A /* ListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 71A07B142ACCE0C400DD899A /* ListView.swift */; };
+		71A07B152ACCE0C400DD899A /* AlbumView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 71A07B142ACCE0C400DD899A /* AlbumView.swift */; };
 		71A07B172ACCEB6B00DD899A /* Track.swift in Sources */ = {isa = PBXBuildFile; fileRef = 71A07B162ACCEB6B00DD899A /* Track.swift */; };
 		71E99E9C2ACDF7190008CF2D /* AudioManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 71E99E9B2ACDF7190008CF2D /* AudioManager.swift */; };
 		71E99E9E2ACE0D0B0008CF2D /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 71E99E9D2ACE0D0B0008CF2D /* ContentView.swift */; };
@@ -37,6 +41,9 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		7178703E2AD242FD00C07423 /* MusicPlayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MusicPlayer.swift; sourceTree = "<group>"; };
+		717870402AD24B9D00C07423 /* BlurHashDecoder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlurHashDecoder.swift; sourceTree = "<group>"; };
+		717870422AD276E200C07423 /* NavScrollView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavScrollView.swift; sourceTree = "<group>"; };
 		71A07AE62ACB496C00DD899A /* MuseFin.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MuseFin.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		71A07AE92ACB496C00DD899A /* MuseFinApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MuseFinApp.swift; sourceTree = "<group>"; };
 		71A07AEB2ACB496C00DD899A /* LibraryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryView.swift; sourceTree = "<group>"; };
@@ -54,7 +61,7 @@
 		71A07B0E2ACCC17C00DD899A /* AlbumsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlbumsView.swift; sourceTree = "<group>"; };
 		71A07B102ACCC44F00DD899A /* Album.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Album.swift; sourceTree = "<group>"; };
 		71A07B122ACCC85000DD899A /* Item.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Item.swift; sourceTree = "<group>"; };
-		71A07B142ACCE0C400DD899A /* ListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListView.swift; sourceTree = "<group>"; };
+		71A07B142ACCE0C400DD899A /* AlbumView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlbumView.swift; sourceTree = "<group>"; };
 		71A07B162ACCEB6B00DD899A /* Track.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Track.swift; sourceTree = "<group>"; };
 		71E99E9B2ACDF7190008CF2D /* AudioManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioManager.swift; sourceTree = "<group>"; };
 		71E99E9D2ACE0D0B0008CF2D /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -72,6 +79,7 @@
 				71E99EA52ACE320A0008CF2D /* NukeUI in Frameworks */,
 				71E99EA12ACE320A0008CF2D /* Nuke in Frameworks */,
 				71E99EA32ACE320A0008CF2D /* NukeExtensions in Frameworks */,
+				7178703B2AD21A2F00C07423 /* SwiftAudioEx in Frameworks */,
 				71E99EA72ACE320A0008CF2D /* NukeVideo in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -110,6 +118,7 @@
 				71A07AFF2ACB6A8100DD899A /* JellyfinAPI.swift */,
 				71A07B0A2ACC0A5000DD899A /* DataController.swift */,
 				71E99E9B2ACDF7190008CF2D /* AudioManager.swift */,
+				717870402AD24B9D00C07423 /* BlurHashDecoder.swift */,
 			);
 			path = MuseFin;
 			sourceTree = "<group>";
@@ -141,8 +150,10 @@
 				71A07AF72ACB49E300DD899A /* LoginView.swift */,
 				71A07B052ACB86B500DD899A /* LoadingView.swift */,
 				71A07B0E2ACCC17C00DD899A /* AlbumsView.swift */,
-				71A07B142ACCE0C400DD899A /* ListView.swift */,
+				71A07B142ACCE0C400DD899A /* AlbumView.swift */,
 				71E99E9D2ACE0D0B0008CF2D /* ContentView.swift */,
+				7178703E2AD242FD00C07423 /* MusicPlayer.swift */,
+				717870422AD276E200C07423 /* NavScrollView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -179,6 +190,7 @@
 				71E99EA22ACE320A0008CF2D /* NukeExtensions */,
 				71E99EA42ACE320A0008CF2D /* NukeUI */,
 				71E99EA62ACE320A0008CF2D /* NukeVideo */,
+				7178703A2AD21A2F00C07423 /* SwiftAudioEx */,
 			);
 			productName = MuseFin;
 			productReference = 71A07AE62ACB496C00DD899A /* MuseFin.app */;
@@ -210,6 +222,7 @@
 			mainGroup = 71A07ADD2ACB496C00DD899A;
 			packageReferences = (
 				71E99E9F2ACE320A0008CF2D /* XCRemoteSwiftPackageReference "Nuke" */,
+				717870392AD21A2F00C07423 /* XCRemoteSwiftPackageReference "SwiftAudioEx" */,
 			);
 			productRefGroup = 71A07AE72ACB496C00DD899A /* Products */;
 			projectDirPath = "";
@@ -249,12 +262,15 @@
 				71E99E9C2ACDF7190008CF2D /* AudioManager.swift in Sources */,
 				71A07AEC2ACB496C00DD899A /* LibraryView.swift in Sources */,
 				71A07B132ACCC85000DD899A /* Item.swift in Sources */,
+				7178703F2AD242FD00C07423 /* MusicPlayer.swift in Sources */,
 				71A07B0F2ACCC17C00DD899A /* AlbumsView.swift in Sources */,
 				71A07B172ACCEB6B00DD899A /* Track.swift in Sources */,
-				71A07B152ACCE0C400DD899A /* ListView.swift in Sources */,
+				71A07B152ACCE0C400DD899A /* AlbumView.swift in Sources */,
+				717870412AD24B9D00C07423 /* BlurHashDecoder.swift in Sources */,
 				71A07B0B2ACC0A5000DD899A /* DataController.swift in Sources */,
 				71A07B022ACB6DE400DD899A /* Login.swift in Sources */,
 				71A07AEA2ACB496C00DD899A /* MuseFinApp.swift in Sources */,
+				717870432AD276E200C07423 /* NavScrollView.swift in Sources */,
 				71A07B112ACCC44F00DD899A /* Album.swift in Sources */,
 				71A07B062ACB86B500DD899A /* LoadingView.swift in Sources */,
 				71A07AFE2ACB673400DD899A /* BaseItem.swift in Sources */,
@@ -475,6 +491,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		717870392AD21A2F00C07423 /* XCRemoteSwiftPackageReference "SwiftAudioEx" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/doublesymmetry/SwiftAudioEx";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.15.3;
+			};
+		};
 		71E99E9F2ACE320A0008CF2D /* XCRemoteSwiftPackageReference "Nuke" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/kean/Nuke";
@@ -486,6 +510,11 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		7178703A2AD21A2F00C07423 /* SwiftAudioEx */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 717870392AD21A2F00C07423 /* XCRemoteSwiftPackageReference "SwiftAudioEx" */;
+			productName = SwiftAudioEx;
+		};
 		71E99EA02ACE320A0008CF2D /* Nuke */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 71E99E9F2ACE320A0008CF2D /* XCRemoteSwiftPackageReference "Nuke" */;

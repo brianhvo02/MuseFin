@@ -17,6 +17,8 @@ protocol PTrack: PBaseItem {
     var albumId: String { get set }
     var albumArtist: String { get set }
     var albumArtists: [ItemRef] { get set }
+    var albumPrimaryImageTag: String? { get set }
+    var imageBlurHashes: ImageBlurHash { get set }
 }
 
 struct Track: PTrack {
@@ -35,10 +37,16 @@ struct Track: PTrack {
     var albumId: String
     var albumArtist: String
     var albumArtists: [ItemRef]
+    var albumPrimaryImageTag: String?
+    var imageBlurHashes: ImageBlurHash
 }
 
 struct TrackContainer: Codable {
     let totalRecordCount: Int
     let startIndex: Int
     let items: [Track]
+}
+
+struct ImageBlurHash: Codable {
+    let Primary: [String: String]?
 }

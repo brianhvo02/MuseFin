@@ -6,7 +6,9 @@
 //
 
 import Foundation
-import AVFoundation
+import UIKit
+import SwiftAudioEx
+import Nuke
 
 var authHeader = "MediaBrowser Client=\"MuseFin\", Device=\"test\", DeviceId=\"test\", Version=\"0.0.0\""
 
@@ -232,22 +234,45 @@ class JellyfinAPI {
         }
     }
     
-    func getAudioAsset(trackId: String) -> AVPlayerItem? {
-        if let token = self.token, var serverUrl = self.serverUrl {
-            serverUrl.append(path: "/Audio/\(trackId)/universal")
-            serverUrl.append(queryItems: [
-                URLQueryItem(name: "container", value: "opus,webm|opus,mp3,aac,m4a|aac,m4b|aac,flac,webma,webm|webma,wav,ogg"),
-                URLQueryItem(name: "transcodingProtocol", value: "hls")
-            ])
-            
-            let asset = AVURLAsset(url: serverUrl, options: [
+    func getAudioAsset(track: Track) async -> DefaultAudioItem? {
+        guard let token = self.token, var serverUrl = self.serverUrl else {
+            return nil
+        }
+        
+        lazy var flacSupport = false
+        
+        #if targetEnvironment(simulator)
+            flacSupport = true
+        #endif
+        
+        serverUrl.append(path: "/Audio/\(track.id)/universal")
+        serverUrl.append(queryItems: [
+            URLQueryItem(name: "container", value: "mp3,aac,m4a|aac,m4b|aac\(flacSupport ? ",flac" : ""),webma,webm|webma"),
+            URLQueryItem(name: "audioCodec", value: "aac"),
+            URLQueryItem(name: "transcodingProtocol", value: "hls"),
+            URLQueryItem(name: "transcodingContainer", value: "ts")
+        ])
+        
+        var artwork = UIImage(named: "AppIconLight")
+        
+        if let artworkUrl = JellyfinAPI.shared.getAlbumImageUrl(albumId: track.albumId) {
+            let result = try? await ImagePipeline.shared.image(for: artworkUrl)
+            if let result = result {
+                artwork = result
+            }
+        }
+        
+        return DefaultAudioItemAssetOptionsProviding(
+            audioUrl: serverUrl.absoluteString,
+            artist: track.artists.joined(separator: ", "),
+            title: track.name, albumTitle: track.album,
+            sourceType: .stream,
+            artwork: artwork,
+            options: [
                 "AVURLAssetHTTPHeaderFieldsKey": [
                     "Authorization": "\(authHeader), Token=\"\(token)\""
                 ]
-            ])
-            
-            return AVPlayerItem(asset: asset)
-        }
-        return nil
+            ]
+        )
     }
 }

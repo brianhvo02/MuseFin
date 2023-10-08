@@ -18,20 +18,32 @@ struct AlbumsView: View {
         GridItem(.adaptive(minimum: 160))
     ]
     
+    func getAlbums() {
+        JellyfinAPI.shared.getAlbums { err, payload in
+            if let err = err {
+                error = err.localizedDescription
+            } else {
+                albums = payload!.items
+            }
+        }
+    }
+    
     var body: some View {
         if let error = error {
             Text(error)
         }
-        ScrollView {
+        NavScrollView(manager: manager) {
             LazyVGrid(columns: columns, spacing: 20) {
                 ForEach(albums, id: \.id) { album in
-                    NavigationLink(destination: ListView(listData: .album(album), manager: manager)) {
+                    NavigationLink(destination: AlbumView(album: album, manager: manager)) {
                         VStack {
                             LazyImage(
                                 url: JellyfinAPI.shared.getAlbumImageUrl(albumId: album.id)
                             ) { image in
                                 if let image = image.image {
-                                    image.resizable().aspectRatio(1, contentMode: .fit)
+                                    image
+                                        .resizable()
+                                        .aspectRatio(1, contentMode: .fit)
                                 } else {
                                     Image("LogoDark")
                                 }
@@ -47,16 +59,8 @@ struct AlbumsView: View {
                 }
             }
         }
-        .padding()
-        .navigationTitle("Albums")
         .onAppear {
-            JellyfinAPI.shared.getAlbums { err, payload in
-                if let err = err {
-                    error = err.localizedDescription
-                } else {
-                    albums = payload!.items
-                }
-            }
+            getAlbums()
         }
     }
 }

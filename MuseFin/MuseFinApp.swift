@@ -15,10 +15,10 @@ struct MuseFinApp: App {
         WindowGroup {
             ContentView()
                 .environment(\.managedObjectContext, dataController.container.viewContext)
-                .foregroundStyle(.white)
+                .foregroundStyle(.primaryText)
                 .font(.custom("Quicksand", size: 16))
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .background(Color("BackgroundColor"))
+                .background(Color.background)
         }
     }
 }
