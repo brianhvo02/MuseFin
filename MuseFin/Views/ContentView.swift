@@ -39,7 +39,7 @@ struct ContentView: View {
                             Spacer()
                             HStack {
                                 HStack {
-                                    LazyImage(url: JellyfinAPI.shared.getAlbumImageUrl(albumId: track.albumId)) { image in
+                                    LazyImage(url: JellyfinAPI.shared.getItemImageUrl(itemId: track.albumId)) { image in
                                         if let image = image.image {
                                             image
                                                 .resizable()

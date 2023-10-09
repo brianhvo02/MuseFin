@@ -19,15 +19,17 @@ struct LibraryItem<Content: View>: View {
         } label: {
             HStack(spacing: 24) {
                 Image(systemName: icon)
+                    .foregroundStyle(.accent)
                     .frame(width: 8, height: 8)
                 Text(display)
+                Spacer()
+                Image(systemName: "chevron.right")
+                    .foregroundColor(.secondaryText)
             }
             .padding(.all)
-            .frame(maxWidth: .infinity, alignment: .leading)
         }
         
         Divider()
-            .overlay(.white)
     }
 }
 
@@ -45,8 +47,11 @@ struct LibraryView: View {
             Text(error)
         }
         VStack(alignment: .leading) {
+            Divider()
+            
             LibraryItem(id: Views.playlists, display: "Playlists", icon: "music.note.list") {
-                EmptyView()
+                PlaylistsView(manager: manager)
+                    .navigationTitle("Playlists")
             }
             LibraryItem(id: Views.artists, display: "Artists", icon: "music.mic") {
                 EmptyView()
@@ -68,14 +73,18 @@ struct LibraryView: View {
             }) {
                 HStack(spacing: 24) {
                     Image(systemName: "door.right.hand.open")
+                        .foregroundStyle(.accent)
                         .frame(width: 8, height: 8)
                     Text("Log out")
+                    Spacer()
+                    Image(systemName: "chevron.right")
+                        .foregroundColor(.secondaryText)
                 }
                 .padding(.all)
-                .frame(maxWidth: .infinity, alignment: .leading)
             }
+            
+            Divider()
         }
         .font(.custom("Quicksand", size: 24))
-        .padding(.all)
     }
 }

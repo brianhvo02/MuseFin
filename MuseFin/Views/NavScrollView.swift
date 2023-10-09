@@ -16,7 +16,8 @@ struct NavScrollView<Content: View>: View {
             Color.background.edgesIgnoringSafeArea(.all)
             ScrollView {
                 content
-                    .padding(.all)
+                    .padding(.horizontal)
+                    .padding(.top)
                 
                 if let _ = manager.listId {
                     Spacer()

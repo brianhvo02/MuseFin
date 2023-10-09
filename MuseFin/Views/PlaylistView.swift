@@ -1,16 +1,15 @@
 //
-//  AlbumView.swift
+//  PlaylistView.swift
 //  MuseFin
 //
-//  Created by Brian Huy Vo on 10/3/23.
+//  Created by Brian Huy Vo on 10/9/23.
 //
 
 import SwiftUI
-import AVKit
 import NukeUI
 
-struct AlbumView: View {
-    var album: Album
+struct PlaylistView: View {
+    var playlist: Playlist
     @ObservedObject var manager: AudioManager
     @State private var error: String?
     @State private var tracks: [Track] = []
@@ -18,7 +17,7 @@ struct AlbumView: View {
     var body: some View {
         NavScrollView(manager: manager) {
             VStack(alignment: .center, spacing: 16) {
-                LazyImage(url: JellyfinAPI.shared.getItemImageUrl(itemId: album.id)) { image in
+                LazyImage(url: JellyfinAPI.shared.getItemImageUrl(itemId: playlist.id)) { image in
                     if let image = image.image {
                         image
                             .resizable()
@@ -32,16 +31,14 @@ struct AlbumView: View {
                 .frame(width: 250, height: 250)
                 .clipShape(RoundedRectangle(cornerRadius: 8))
                 
-                Text(album.name)
+                Text(playlist.name)
                     .fontWeight(.bold)
-                Text(album.albumArtist)
-                    .foregroundStyle(Color.accentColor)
             }
             .multilineTextAlignment(.center)
             HStack {
                 Button {
                     Task {
-                        await manager.loadTracks(listId: album.id, list: .album(album), trackIdx: 0, trackList: tracks)
+                        await manager.loadTracks(listId: playlist.id, list: .playlist(playlist), trackIdx: 0, trackList: tracks)
                     }
                 } label: {
                     Image(systemName: "play.fill")
@@ -70,26 +67,42 @@ struct AlbumView: View {
                 ForEach(Array(tracks.enumerated()), id: \.offset) { idx, track in
                     Button(action: {
                         Task {
-                            await manager.loadTracks(listId: album.id, list: .album(album), trackIdx: idx, trackList: tracks)
+                            await manager.loadTracks(listId: playlist.id, list: .playlist(playlist), trackIdx: idx, trackList: tracks)
                         }
                     }) {
-                        HStack(spacing: 4) {
-                            Group {
-                                if manager.listId == album.id && manager.currentTrack?.id == track.id {
-                                    Image(systemName: "chart.bar.xaxis")
-                                        .symbolEffect(.pulse, options: .repeating, isActive: manager.isPlaying)
-                                        .foregroundStyle(Color.accentColor)
+                        HStack(spacing: 12) {
+                            LazyImage(url: JellyfinAPI.shared.getItemImageUrl(itemId: track.albumId)) { image in
+                                if let image = image.image {
+                                    image
+                                        .resizable()
+                                        .aspectRatio(1, contentMode: .fit)
                                 } else {
-                                    Text(String(idx + 1))
-                                        .foregroundStyle(Color.gray)
+                                    Image("LogoDark")
+                                        .resizable()
+                                        .aspectRatio(1, contentMode: .fit)
                                 }
                             }
-                            .font(.system(size: 16))
-                            .frame(width: 32, height: 16, alignment: .center)
+                            .frame(width: 48, height: 48)
+                            .clipShape(RoundedRectangle(cornerRadius: 8))
+                            .brightness(manager.listId == playlist.id && manager.currentTrack?.id == track.id ? -0.5 : 0)
+                            .overlay {
+                                if manager.listId == playlist.id && manager.currentTrack?.id == track.id {
+                                    Image(systemName: "chart.bar.xaxis")
+                                        .symbolEffect(.pulse, options: .repeating, isActive: manager.isPlaying)
+                                        .foregroundStyle(Color.secondaryText)
+                                }
+                            }
                             
-                            Text(track.name)
-                                .lineLimit(1)
+                            VStack(alignment: .leading, spacing: 8) {
+                                Text(track.name)
+                                    .lineLimit(1)
+                                Text(track.artists.joined(separator: ", "))
+                                    .lineLimit(1)
+                                    .foregroundStyle(.secondaryText)
+                                    .font(.custom("Quicksand", size: 10))
+                            }
                         }
+                        .padding(.horizontal)
                         .padding(.vertical, 4)
                         .frame(maxWidth: .infinity, alignment: .leading)
                     }
@@ -99,7 +112,7 @@ struct AlbumView: View {
         }
         .navigationBarTitleDisplayMode(.inline)
         .onAppear {
-            JellyfinAPI.shared.getTracks(parentId: album.id, sortByName: true) { err, payload in
+            JellyfinAPI.shared.getTracks(parentId: playlist.id, sortByName: false) { err, payload in
                 if let err = err {
                     error = err.localizedDescription
                 } else {

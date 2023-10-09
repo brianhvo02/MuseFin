@@ -13,7 +13,7 @@ import AVFAudio
 enum ListType {
     case none
     case album(Album)
-//    case playlist
+    case playlist(Playlist)
 }
 
 class AudioManager: ObservableObject {

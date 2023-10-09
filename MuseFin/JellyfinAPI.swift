@@ -154,7 +154,7 @@ class JellyfinAPI {
         }
     }
     
-    func getChildren<T: Codable>(_ parentId: String, itemTypes: [String] = [], completion: @escaping (LoginError?, T?) -> ()) {
+    func getChildren<T: Codable>(_ parentId: String, sortByName: Bool, itemTypes: [String] = [], completion: @escaping (LoginError?, T?) -> ()) {
         guard let user = self.user else {
             completion(.unauthorized, nil)
             return
@@ -166,7 +166,7 @@ class JellyfinAPI {
                 "parentId": parentId,
                 "includeItemTypes": itemTypes.joined(separator: ","),
                 "recursive": "true",
-                "sortBy": "SortName"
+                "sortBy": sortByName ? "SortName" : ""
             ]
         ) { (err, payload: T?) in
             if let err = err {
@@ -203,7 +203,7 @@ class JellyfinAPI {
                     completion(.notFound, nil)
                     return
                 }
-                self.getChildren(view.id, itemTypes: ["MusicAlbum"]) { (err, albums: AlbumContainer?) in
+                self.getChildren(view.id, sortByName: true, itemTypes: ["MusicAlbum"]) { (err, albums: AlbumContainer?) in
                     if let err = err {
                         completion(err, nil)
                         return
@@ -215,16 +215,39 @@ class JellyfinAPI {
         }
     }
     
-    func getAlbumImageUrl(albumId: String) -> URL? {
+    func getPlaylists(completion: @escaping (LoginError?, PlaylistContainer?) -> ()) {
+        self.getViews { err, views in
+            if let err = err {
+                completion(err, nil)
+                return
+            } else {
+                let view = views!.items.first(where: { $0.collectionType == "playlists" })
+                guard let view = view else {
+                    completion(.notFound, nil)
+                    return
+                }
+                self.getChildren(view.id, sortByName: true) { (err, playlists: PlaylistContainer?) in
+                    if let err = err {
+                        completion(err, nil)
+                        return
+                    } else {
+                        completion(nil, playlists)
+                    }
+                }
+            }
+        }
+    }
+    
+    func getItemImageUrl(itemId: String) -> URL? {
         if var serverUrl = self.serverUrl {
-            serverUrl.append(path: "/Items/\(albumId)/Images/Primary")
+            serverUrl.append(path: "/Items/\(itemId)/Images/Primary")
             return serverUrl
         }
         return nil
     }
     
-    func getTracks(parentId: String, completion: @escaping (LoginError?, TrackContainer?) -> ()) {
-        self.getChildren(parentId, itemTypes: ["Audio"]) { (err, tracks: TrackContainer?) in
+    func getTracks(parentId: String, sortByName: Bool, completion: @escaping (LoginError?, TrackContainer?) -> ()) {
+        self.getChildren(parentId, sortByName: sortByName, itemTypes: ["Audio"]) { (err, tracks: TrackContainer?) in
             if let err = err {
                 completion(err, nil)
                 return
@@ -255,7 +278,7 @@ class JellyfinAPI {
         
         var artwork = UIImage(named: "AppIconLight")
         
-        if let artworkUrl = JellyfinAPI.shared.getAlbumImageUrl(albumId: track.albumId) {
+        if let artworkUrl = JellyfinAPI.shared.getItemImageUrl(itemId: track.albumId) {
             let result = try? await ImagePipeline.shared.image(for: artworkUrl)
             if let result = result {
                 artwork = result

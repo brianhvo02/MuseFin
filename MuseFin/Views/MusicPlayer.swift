@@ -57,8 +57,8 @@ struct MusicPlayer: View {
                     
                     switch manager.list {
                     case let .album(album):
-                        NavigationLink(destination: AlbumView(album: album, manager: manager)) {
-                            Text(currentTrack.album)
+//                        NavigationLink(destination: AlbumView(album: album, manager: manager)) {
+                            Text(album.name)
                                 .fontWeight(.bold)
                                 .lineLimit(1)
                                 .padding(.horizontal)
@@ -66,7 +66,18 @@ struct MusicPlayer: View {
 //                                .onTapGesture {
 //                                    showNowPlaying.toggle()
 //                                }
-                        }
+//                        }
+                    case let .playlist(playlist):
+//                        NavigationLink(destination: AlbumView(album: album, manager: manager)) {
+                            Text(playlist.name)
+                                .fontWeight(.bold)
+                                .lineLimit(1)
+                                .padding(.horizontal)
+                                .frame(alignment: .bottom)
+//                                .onTapGesture {
+//                                    showNowPlaying.toggle()
+//                                }
+//                        }
                     default:
                         EmptyView()
                     }
@@ -82,7 +93,7 @@ struct MusicPlayer: View {
                 
                 Spacer()
                 
-                LazyImage(url: JellyfinAPI.shared.getAlbumImageUrl(albumId: currentTrack.albumId)) { image in
+                LazyImage(url: JellyfinAPI.shared.getItemImageUrl(itemId: currentTrack.albumId)) { image in
                     if let image = image.image {
                         image.resizable().aspectRatio(1, contentMode: .fit)
                     } else {

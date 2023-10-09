@@ -1,29 +1,25 @@
 //
-//  AlbumsView.swift
+//  PlaylistsView.swift
 //  MuseFin
 //
-//  Created by Brian Huy Vo on 10/3/23.
+//  Created by Brian Huy Vo on 10/9/23.
 //
 
 import SwiftUI
 import NukeUI
 
-struct AlbumsView: View {
+struct PlaylistsView: View {
     @FetchRequest(sortDescriptors: []) var users: FetchedResults<UserInfo>
-    @State private var albums: [Album] = []
+    @State private var playlists: [Playlist] = []
     @State private var error: String?
     @ObservedObject var manager: AudioManager
     
-    let columns = [
-        GridItem(.adaptive(minimum: 160))
-    ]
-    
-    func getAlbums() {
-        JellyfinAPI.shared.getAlbums { err, payload in
+    func getPlaylists() {
+        JellyfinAPI.shared.getPlaylists { err, payload in
             if let err = err {
                 error = err.localizedDescription
             } else {
-                albums = payload!.items
+                playlists = payload!.items
             }
         }
     }
@@ -33,12 +29,12 @@ struct AlbumsView: View {
             Text(error)
         }
         NavScrollView(manager: manager) {
-            LazyVGrid(columns: columns, spacing: 20) {
-                ForEach(albums, id: \.id) { album in
-                    NavigationLink(destination: AlbumView(album: album, manager: manager)) {
-                        VStack {
+            VStack(alignment: .leading, spacing: 12) {
+                ForEach(playlists, id: \.id) { playlist in
+                    NavigationLink(destination: PlaylistView(playlist: playlist, manager: manager)) {
+                        HStack(spacing: 16) {
                             LazyImage(
-                                url: JellyfinAPI.shared.getItemImageUrl(itemId: album.id)
+                                url: JellyfinAPI.shared.getItemImageUrl(itemId: playlist.id)
                             ) { image in
                                 if let image = image.image {
                                     image
@@ -50,21 +46,23 @@ struct AlbumsView: View {
                                         .aspectRatio(1, contentMode: .fit)
                                 }
                             }
-                            .frame(width: 160, height: 160)
+                            .frame(width: 48, height: 48)
                             .clipShape(RoundedRectangle(cornerRadius: 8))
                             
-                            Text(album.name)
+                            Text(playlist.name)
                                 .fontWeight(.bold)
-                            Text(album.albumArtist)
-                                .foregroundStyle(Color.gray)
+                            Spacer()
+                            Image(systemName: "chevron.right")
+                                .foregroundColor(.secondaryText)
                         }
                         .lineLimit(1)
                     }
+                    Divider()
                 }
             }
         }
         .onAppear {
-            getAlbums()
+            getPlaylists()
         }
     }
 }

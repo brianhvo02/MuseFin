@@ -11,6 +11,9 @@
 		7178703F2AD242FD00C07423 /* MusicPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7178703E2AD242FD00C07423 /* MusicPlayer.swift */; };
 		717870412AD24B9D00C07423 /* BlurHashDecoder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 717870402AD24B9D00C07423 /* BlurHashDecoder.swift */; };
 		717870432AD276E200C07423 /* NavScrollView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 717870422AD276E200C07423 /* NavScrollView.swift */; };
+		717870472AD3F0A800C07423 /* PlaylistView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 717870462AD3F0A800C07423 /* PlaylistView.swift */; };
+		717870492AD3F0E700C07423 /* PlaylistsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 717870482AD3F0E700C07423 /* PlaylistsView.swift */; };
+		7178704B2AD3F19100C07423 /* Playlist.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7178704A2AD3F19100C07423 /* Playlist.swift */; };
 		71A07AEA2ACB496C00DD899A /* MuseFinApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 71A07AE92ACB496C00DD899A /* MuseFinApp.swift */; };
 		71A07AEC2ACB496C00DD899A /* LibraryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 71A07AEB2ACB496C00DD899A /* LibraryView.swift */; };
 		71A07AEE2ACB497200DD899A /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 71A07AED2ACB497200DD899A /* Assets.xcassets */; };
@@ -44,6 +47,9 @@
 		7178703E2AD242FD00C07423 /* MusicPlayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MusicPlayer.swift; sourceTree = "<group>"; };
 		717870402AD24B9D00C07423 /* BlurHashDecoder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlurHashDecoder.swift; sourceTree = "<group>"; };
 		717870422AD276E200C07423 /* NavScrollView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavScrollView.swift; sourceTree = "<group>"; };
+		717870462AD3F0A800C07423 /* PlaylistView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaylistView.swift; sourceTree = "<group>"; };
+		717870482AD3F0E700C07423 /* PlaylistsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaylistsView.swift; sourceTree = "<group>"; };
+		7178704A2AD3F19100C07423 /* Playlist.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Playlist.swift; sourceTree = "<group>"; };
 		71A07AE62ACB496C00DD899A /* MuseFin.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MuseFin.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		71A07AE92ACB496C00DD899A /* MuseFinApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MuseFinApp.swift; sourceTree = "<group>"; };
 		71A07AEB2ACB496C00DD899A /* LibraryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryView.swift; sourceTree = "<group>"; };
@@ -139,6 +145,7 @@
 				71A07B102ACCC44F00DD899A /* Album.swift */,
 				71A07B122ACCC85000DD899A /* Item.swift */,
 				71A07B162ACCEB6B00DD899A /* Track.swift */,
+				7178704A2AD3F19100C07423 /* Playlist.swift */,
 			);
 			path = DTOs;
 			sourceTree = "<group>";
@@ -154,6 +161,8 @@
 				71E99E9D2ACE0D0B0008CF2D /* ContentView.swift */,
 				7178703E2AD242FD00C07423 /* MusicPlayer.swift */,
 				717870422AD276E200C07423 /* NavScrollView.swift */,
+				717870462AD3F0A800C07423 /* PlaylistView.swift */,
+				717870482AD3F0E700C07423 /* PlaylistsView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -258,6 +267,7 @@
 				71A07B092ACC09AF00DD899A /* Jellyfin.xcdatamodeld in Sources */,
 				71A07B002ACB6A8200DD899A /* JellyfinAPI.swift in Sources */,
 				71E99E9E2ACE0D0B0008CF2D /* ContentView.swift in Sources */,
+				717870492AD3F0E700C07423 /* PlaylistsView.swift in Sources */,
 				71A07AF82ACB49E300DD899A /* LoginView.swift in Sources */,
 				71E99E9C2ACDF7190008CF2D /* AudioManager.swift in Sources */,
 				71A07AEC2ACB496C00DD899A /* LibraryView.swift in Sources */,
@@ -269,9 +279,11 @@
 				717870412AD24B9D00C07423 /* BlurHashDecoder.swift in Sources */,
 				71A07B0B2ACC0A5000DD899A /* DataController.swift in Sources */,
 				71A07B022ACB6DE400DD899A /* Login.swift in Sources */,
+				717870472AD3F0A800C07423 /* PlaylistView.swift in Sources */,
 				71A07AEA2ACB496C00DD899A /* MuseFinApp.swift in Sources */,
 				717870432AD276E200C07423 /* NavScrollView.swift in Sources */,
 				71A07B112ACCC44F00DD899A /* Album.swift in Sources */,
+				7178704B2AD3F19100C07423 /* Playlist.swift in Sources */,
 				71A07B062ACB86B500DD899A /* LoadingView.swift in Sources */,
 				71A07AFE2ACB673400DD899A /* BaseItem.swift in Sources */,
 			);
