@@ -22,7 +22,7 @@ struct ContentView: View {
     @State private var loggedIn: Bool?
     @StateObject private var manager = AudioManager()
     @State private var showNowPlaying = false
-    @State var path = NavigationPath()
+    @State private var path = NavigationPath()
     
     var body: some View {
         if let loggedIn = loggedIn {
@@ -102,10 +102,12 @@ struct ContentView: View {
                         loggedIn = false
                         return
                     }
-                    JellyfinAPI.shared.tokenLogin(user: users[0]) { err, user in
-                        if (err == nil) {
+                    
+                    Task {
+                        do {
+                            let _ = try await JellyfinAPI.shared.tokenLogin(user: users[0])
                             loggedIn = true
-                        } else {
+                        } catch {
                             loggedIn = false
                         }
                     }

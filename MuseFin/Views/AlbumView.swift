@@ -32,10 +32,13 @@ struct AlbumView: View {
                 .frame(width: 250, height: 250)
                 .clipShape(RoundedRectangle(cornerRadius: 8))
                 
-                Text(album.name)
-                    .fontWeight(.bold)
-                Text(album.albumArtist)
-                    .foregroundStyle(Color.accentColor)
+                VStack(spacing: 4) {
+                    Text(album.name)
+                        .font(.custom("Quicksand", size: 24))
+                        .fontWeight(.bold)
+                    Text(album.albumArtist)
+                        .foregroundStyle(Color.accentColor)
+                }
             }
             .multilineTextAlignment(.center)
             HStack {
@@ -98,12 +101,30 @@ struct AlbumView: View {
             }
         }
         .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                Menu {
+                    Button {
+//                        JellyfinAPI.shared.down
+                    } label: {
+                        HStack {
+                            Text("Download")
+                            Spacer()
+                            Image(systemName: "arrow.down.circle")
+                        }
+                    }
+                } label: {
+                    Image(systemName: "ellipsis.circle.fill")
+                }
+            }
+        }
         .onAppear {
-            JellyfinAPI.shared.getTracks(parentId: album.id, sortByName: true) { err, payload in
-                if let err = err {
-                    error = err.localizedDescription
-                } else {
-                    tracks = payload!.items
+            Task {
+                do {
+                    let payload = try await JellyfinAPI.shared.getTracks(parentId: album.id, sortBy: ["SortName"])
+                    tracks = payload.items
+                } catch {
+                    self.error = error.localizedDescription
                 }
             }
         }

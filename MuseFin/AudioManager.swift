@@ -16,8 +16,18 @@ enum ListType {
     case playlist(Playlist)
 }
 
-class AudioManager: ObservableObject {
+class Player {
+    static let shared = Player()
     var audioPlayer = QueuedAudioPlayer()
+    
+    private init() {
+        let directoryURL = FileManager.default.urls(for: .musicDirectory, in: .userDomainMask)[0]
+        print(directoryURL.absoluteString)
+    }
+}
+
+class AudioManager: ObservableObject {
+    var audioPlayer = Player.shared.audioPlayer
     var list: ListType = .none
     @Published var listId: String?
     @Published var currentTrack: Track?

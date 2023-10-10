@@ -112,11 +112,12 @@ struct PlaylistView: View {
         }
         .navigationBarTitleDisplayMode(.inline)
         .onAppear {
-            JellyfinAPI.shared.getTracks(parentId: playlist.id, sortByName: false) { err, payload in
-                if let err = err {
-                    error = err.localizedDescription
-                } else {
-                    tracks = payload!.items
+            Task {
+                do {
+                    let payload = try await JellyfinAPI.shared.getTracks(parentId: playlist.id)
+                    tracks = payload.items
+                } catch {
+                    self.error = error.localizedDescription
                 }
             }
         }

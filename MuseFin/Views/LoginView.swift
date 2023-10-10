@@ -16,27 +16,27 @@ struct LoginView: View {
     @Environment(\.managedObjectContext) var ctx
     @FetchRequest(sortDescriptors: []) var users: FetchedResults<UserInfo>
     
-    func submitLogin() {
+    func submitLogin() async {
         guard let serverUrl = URL(string: serverAddr) else {
             return
         }
         
-        JellyfinAPI.shared.login(
-            serverUrl: serverUrl,
-            username: username,
-            password: password
-        ) { err, payload in
-            guard err == nil else {
-                error = err!.localizedDescription
-                return
-            }
-            error = ""
+        error = ""
+        do {
+            let payload = try await JellyfinAPI.shared.login(
+                serverUrl: serverUrl,
+                username: username,
+                password: password
+            )
+            
             let user = UserInfo(context: ctx)
-            user.id = payload!.user.id
-            user.token = payload!.accessToken
+            user.id = payload.user.id
+            user.token = payload.accessToken
             user.serverUrl = serverUrl.absoluteString
-            try? ctx.save()
+            try ctx.save()
             loggedIn = true
+        } catch {
+            self.error = error.localizedDescription
         }
     }
     
@@ -79,7 +79,11 @@ struct LoginView: View {
                         .background(Color.gray)
                 }
                 
-                Button("Login", action: submitLogin)
+                Button("Login") {
+                    Task {
+                        await submitLogin()
+                    }
+                }
             }
             .fontWeight(.bold)
         }

@@ -43,11 +43,10 @@ class JellyfinAPI {
         _ path: String, method: String? = nil,
         body: Codable? = nil, query: [String: String]? = nil,
         token: String? = nil, serverUrl: URL? = nil,
-        completion: @escaping (LoginError?, T?) -> ()
-    ) {
+        contentType: T.Type
+    ) async throws -> T {
         guard let serverUrl = self.serverUrl ?? serverUrl else {
-            completion(LoginError.notFound, nil)
-            return
+            throw LoginError.notFound
         }
         var url = serverUrl.appending(path: path)
         if let query = query {
@@ -59,7 +58,7 @@ class JellyfinAPI {
             request.httpMethod = method
         }
         if let body = body {
-            request.httpBody = try! JSONEncoder().encode(body)
+            request.httpBody = try JSONEncoder().encode(body)
         }
         if let token = self.token ?? token {
             request.setValue("\(authHeader), Token=\"\(token)\"", forHTTPHeaderField: "Authorization")
@@ -68,174 +67,124 @@ class JellyfinAPI {
         }
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.setValue("application/json; profile=\"CamelCase\"", forHTTPHeaderField: "Accept")
-        URLSession.shared.dataTask(with: request) { data, res, err in
-            do {
-                guard err == nil else {
-                    throw err!
+        
+        do {
+            let (data, res) = try await URLSession.shared.data(for: request)
+            let payload = try JSONDecoder().decode(T.self, from: data)
+            
+            if let res = res as? HTTPURLResponse {
+                if res.statusCode == 401 {
+                    throw LoginError.unauthorized
                 }
-                let payload = try JSONDecoder().decode(T.self, from: data!)
-                completion(nil, payload)
-            } catch is URLError {
-                completion(LoginError.notFound, nil)
-            } catch {
-                if let httpRes = res as? HTTPURLResponse {
-                    if httpRes.statusCode == 401 {
-                        completion(LoginError.unauthorized, nil)
-                    } else {
-                        print(error)
-                        completion(LoginError.notFound, nil)
-                    }
-                } else {
-                    print(err!)
+                
+                if res.statusCode == 200 {
+                    return payload
                 }
+                
+                throw LoginError.notFound
             }
+            
+            throw LoginError.notFound
+        } catch is URLError {
+            throw LoginError.notFound
+        } catch {
+            print(error)
+            throw LoginError.unexpected(code: 99)
         }
-        .resume()
     }
     
-    func login(serverUrl: URL, username: String, password: String, completion: @escaping (LoginError?, Login?) -> ()) {
+    func login(serverUrl: URL, username: String, password: String) async throws -> Login {
         let payload = LoginPayload(username: username, pw: password)
-        self.request(
+        let result = try await request(
             "/Users/AuthenticateByName",
             method: "POST", body: payload,
-            serverUrl: serverUrl
-        ) { (err, payload: Login?) in
-            if let err = err {
-                completion(err, nil)
-                return
-            }
-            self.user = payload!.user
-            self.token = payload!.accessToken
-            self.serverUrl = serverUrl
-            completion(nil, payload)
-        }
+            serverUrl: serverUrl,
+            contentType: Login.self
+        )
+        user = result.user
+        token = result.accessToken
+        self.serverUrl = serverUrl
+        
+        return result
     }
     
-    func tokenLogin(user: UserInfo, completion: @escaping (LoginError?, User?) -> ()) {
+    func tokenLogin(user: UserInfo) async throws -> User {
         guard let serverAddr = user.serverUrl, let serverUrl = URL(string: serverAddr) else {
-            completion(.notFound, nil)
-            return
+            throw LoginError.notFound
         }
+        
         guard let token = user.token, let id = user.id else {
-            completion(.unauthorized, nil)
-            return
+            throw LoginError.unauthorized
         }
-        self.request(
+        
+        let result = try await request(
             "/Users/Me",
-            token: token, serverUrl: serverUrl
-        ) { (err, payload: User?) in
-            if let err = err {
-                completion(err, nil)
-                return
-            }
-            guard let payload = payload, payload.id == id else {
-                completion(.unauthorized, nil)
-                return
-            }
-            self.user = payload
-            self.token = user.token
-            self.serverUrl = serverUrl
-            completion(nil, payload)
-        }
-    }
-    
-    func getViews(completion: @escaping (LoginError?, ItemContainer?) -> ()) {
-        guard let user = self.user else {
-            completion(.unauthorized, nil)
-            return
+            token: token, serverUrl: serverUrl,
+            contentType: User.self
+        )
+        
+        guard result.id == id else {
+            throw LoginError.unauthorized
         }
         
-        self.request("/Users/\(user.id)/Views") { (err, payload: ItemContainer?) in
-            if let err = err {
-                completion(err, nil)
-                return
-            }
-            completion(nil, payload)
-        }
+        self.user = result
+        self.token = user.token
+        self.serverUrl = serverUrl
+        
+        return result
     }
     
-    func getChildren<T: Codable>(_ parentId: String, sortByName: Bool, itemTypes: [String] = [], completion: @escaping (LoginError?, T?) -> ()) {
+    func getViews() async throws -> ItemContainer {
         guard let user = self.user else {
-            completion(.unauthorized, nil)
-            return
+            throw LoginError.unauthorized
         }
         
-        self.request(
+        return try await request("/Users/\(user.id)/Views", contentType: ItemContainer.self)
+    }
+    
+    func getChildren<T: Codable>(_ parentId: String, sortBy: [String], itemTypes: [String] = []) async throws -> T {
+        guard let user = self.user else {
+            throw LoginError.unauthorized
+        }
+        
+        return try await request(
             "/Users/\(user.id)/Items",
             query: [
                 "parentId": parentId,
                 "includeItemTypes": itemTypes.joined(separator: ","),
                 "recursive": "true",
-                "sortBy": sortByName ? "SortName" : ""
-            ]
-        ) { (err, payload: T?) in
-            if let err = err {
-                completion(err, nil)
-                return
-            }
-            completion(nil, payload)
-        }
+                "sortBy": sortBy.joined(separator: ",")
+            ],
+            contentType: T.self
+        )
     }
     
-    func getItem<T: Codable>(completion: @escaping (LoginError?, T?) -> ()) {
+    func getItem<T: Codable>() async throws -> T {
         guard let user = self.user else {
-            completion(.unauthorized, nil)
-            return
+            throw LoginError.unauthorized
         }
         
-        self.request("/Users/\(user.id)/Items") { (err, payload: T?) in
-            if let err = err {
-                completion(err, nil)
-                return
-            }
-            completion(nil, payload)
-        }
+        return try await request("/Users/\(user.id)/Items", contentType: T.self)
     }
     
-    func getAlbums(completion: @escaping (LoginError?, AlbumContainer?) -> ()) {
-        self.getViews { err, views in
-            if let err = err {
-                completion(err, nil)
-                return
-            } else {
-                let view = views!.items.first(where: { $0.collectionType == "music" })
-                guard let view = view else {
-                    completion(.notFound, nil)
-                    return
-                }
-                self.getChildren(view.id, sortByName: true, itemTypes: ["MusicAlbum"]) { (err, albums: AlbumContainer?) in
-                    if let err = err {
-                        completion(err, nil)
-                        return
-                    } else {
-                        completion(nil, albums)
-                    }
-                }
-            }
+    func getAlbums() async throws -> AlbumContainer {
+        let views = try await getViews()
+        
+        guard let view = views.items.first(where: { $0.collectionType == "music" }) else {
+            throw LoginError.notFound
         }
+        
+        return try await getChildren(view.id, sortBy: ["AlbumArtist", "SortName"], itemTypes: ["MusicAlbum"])
     }
     
-    func getPlaylists(completion: @escaping (LoginError?, PlaylistContainer?) -> ()) {
-        self.getViews { err, views in
-            if let err = err {
-                completion(err, nil)
-                return
-            } else {
-                let view = views!.items.first(where: { $0.collectionType == "playlists" })
-                guard let view = view else {
-                    completion(.notFound, nil)
-                    return
-                }
-                self.getChildren(view.id, sortByName: true) { (err, playlists: PlaylistContainer?) in
-                    if let err = err {
-                        completion(err, nil)
-                        return
-                    } else {
-                        completion(nil, playlists)
-                    }
-                }
-            }
+    func getPlaylists() async throws -> PlaylistContainer {
+        let views = try await getViews()
+        
+        guard let view = views.items.first(where: { $0.collectionType == "playlists" }) else {
+            throw LoginError.notFound
         }
+        
+        return try await getChildren(view.id, sortBy: ["SortName"])
     }
     
     func getItemImageUrl(itemId: String) -> URL? {
@@ -246,15 +195,8 @@ class JellyfinAPI {
         return nil
     }
     
-    func getTracks(parentId: String, sortByName: Bool, completion: @escaping (LoginError?, TrackContainer?) -> ()) {
-        self.getChildren(parentId, sortByName: sortByName, itemTypes: ["Audio"]) { (err, tracks: TrackContainer?) in
-            if let err = err {
-                completion(err, nil)
-                return
-            } else {
-                completion(nil, tracks)
-            }
-        }
+    func getTracks(parentId: String, sortBy: [String] = []) async throws -> TrackContainer {
+        return try await getChildren(parentId, sortBy: sortBy, itemTypes: ["Audio"])
     }
     
     func getAudioAsset(track: Track) async -> DefaultAudioItem? {
@@ -297,5 +239,9 @@ class JellyfinAPI {
                 ]
             ]
         )
+    }
+    
+    func downloadAudioAsset(trackId: Track) async {
+        
     }
 }

@@ -13,14 +13,14 @@ struct PlaylistsView: View {
     @State private var playlists: [Playlist] = []
     @State private var error: String?
     @ObservedObject var manager: AudioManager
+    @State private var searchText = ""
     
-    func getPlaylists() {
-        JellyfinAPI.shared.getPlaylists { err, payload in
-            if let err = err {
-                error = err.localizedDescription
-            } else {
-                playlists = payload!.items
-            }
+    func getPlaylists() async {
+        do {
+            let payload = try await JellyfinAPI.shared.getPlaylists()
+            playlists = payload.items
+        } catch {
+            self.error = error.localizedDescription
         }
     }
     
@@ -30,7 +30,10 @@ struct PlaylistsView: View {
         }
         NavScrollView(manager: manager) {
             VStack(alignment: .leading, spacing: 12) {
-                ForEach(playlists, id: \.id) { playlist in
+                ForEach(
+                    searchText.isEmpty ? playlists : playlists.filter { $0.name.lowercased().contains(searchText.lowercased()) },
+                    id: \.id
+                ) { playlist in
                     NavigationLink(destination: PlaylistView(playlist: playlist, manager: manager)) {
                         HStack(spacing: 16) {
                             LazyImage(
@@ -50,6 +53,7 @@ struct PlaylistsView: View {
                             .clipShape(RoundedRectangle(cornerRadius: 8))
                             
                             Text(playlist.name)
+                                .font(.custom("Quicksand", size: 24))
                                 .fontWeight(.bold)
                             Spacer()
                             Image(systemName: "chevron.right")
@@ -61,8 +65,15 @@ struct PlaylistsView: View {
                 }
             }
         }
+        .searchable(
+            text: $searchText,
+            placement: .navigationBarDrawer(displayMode: .always),
+            prompt: "Find in Playlists"
+        )
         .onAppear {
-            getPlaylists()
+            Task {
+                await getPlaylists()
+            }
         }
     }
 }
