@@ -46,53 +46,71 @@ struct AlbumsView: View {
     }
     
     var body: some View {
-        NavScrollView(manager: manager) {
-            ForEach(alphabet, id: \.self) { letter in
-                if let filtered = sortedAlbums[letter] {
-                    Section(header: Text(letter)) {
-                        LazyVGrid(columns: columns, spacing: 20) {
-                            ForEach(filtered, id: \.id) { album in
-                                NavigationLink(destination: AlbumView(manager: manager, album: album)) {
-                                    VStack {
-                                        if JellyfinAPI.isConnectedToNetwork() {
-                                            LazyImage(
-                                                url: JellyfinAPI.shared.getItemImageUrl(itemId: album.id)
-                                            ) { image in
-                                                if let image = image.image {
-                                                    image
+        ScrollViewReader { proxy in
+            ZStack {
+                NavScrollView(manager: manager) {
+                    ForEach(alphabet, id: \.self) { letter in
+                        if let filtered = sortedAlbums[letter] {
+                            Section {
+                                LazyVGrid(columns: columns, spacing: 20) {
+                                    ForEach(filtered, id: \.id) { album in
+                                        NavigationLink(destination: AlbumView(manager: manager, album: album)) {
+                                            VStack {
+                                                if JellyfinAPI.isConnectedToNetwork() {
+                                                    LazyImage(
+                                                        url: JellyfinAPI.shared.getItemImageUrl(itemId: album.id)
+                                                    ) { image in
+                                                        if let image = image.image {
+                                                            image
+                                                                .resizable()
+                                                                .aspectRatio(1, contentMode: .fit)
+                                                        } else {
+                                                            Image("LogoDark")
+                                                                .resizable()
+                                                                .aspectRatio(1, contentMode: .fit)
+                                                        }
+                                                    }
+                                                    .frame(width: 160, height: 160)
+                                                    .clipShape(RoundedRectangle(cornerRadius: 8))
+                                                } else if let artwork = album.artwork, let image = UIImage(data: artwork) {
+                                                    Image(uiImage: image)
                                                         .resizable()
                                                         .aspectRatio(1, contentMode: .fit)
+                                                        .frame(width: 160, height: 160)
+                                                        .clipShape(RoundedRectangle(cornerRadius: 8))
                                                 } else {
                                                     Image("LogoDark")
                                                         .resizable()
                                                         .aspectRatio(1, contentMode: .fit)
+                                                        .frame(width: 160, height: 160)
+                                                        .clipShape(RoundedRectangle(cornerRadius: 8))
                                                 }
+                                                
+                                                Text(album.name)
+                                                    .fontWeight(.bold)
+                                                Text(album.artist ?? "")
+                                                    .foregroundStyle(Color.gray)
                                             }
-                                            .frame(width: 160, height: 160)
-                                            .clipShape(RoundedRectangle(cornerRadius: 8))
-                                        } else if let artwork = album.artwork, let image = UIImage(data: artwork) {
-                                            Image(uiImage: image)
-                                                .resizable()
-                                                .aspectRatio(1, contentMode: .fit)
-                                                .frame(width: 160, height: 160)
-                                                .clipShape(RoundedRectangle(cornerRadius: 8))
-                                        } else {
-                                            Image("LogoDark")
-                                                .resizable()
-                                                .aspectRatio(1, contentMode: .fit)
-                                                .frame(width: 160, height: 160)
-                                                .clipShape(RoundedRectangle(cornerRadius: 8))
+                                            .lineLimit(1)
                                         }
-                                        
-                                        Text(album.name)
-                                            .fontWeight(.bold)
-                                        Text(album.artist ?? "")
-                                            .foregroundStyle(Color.gray)
                                     }
-                                    .lineLimit(1)
                                 }
+                            } header: {
+                                Text(letter)
+                                    .font(.custom("Quicksand", size: 20))
+                                    .fontWeight(.bold)
+                                    .frame(maxWidth: .infinity, alignment: .leading)
                             }
+                            .id(letter)
                         }
+                    }
+                }
+                .scrollIndicators(.hidden)
+                
+                HStack{
+                    Spacer()
+                    VStack {
+                        AlphabetScroller(proxy: proxy, titles: alphabet.filter { sortedAlbums.keys.contains($0) })
                     }
                 }
             }

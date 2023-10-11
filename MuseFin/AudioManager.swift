@@ -94,9 +94,11 @@ class AudioManager: ObservableObject {
         
         var assets: [DefaultAudioItem] = []
         
-        for track in trackList {
-            if let list = albums[track.albumId],
-               let asset = try? await JellyfinAPI.shared.getAudioAsset(track: track, list: list) {
+        for track in self.trackList {
+            if
+                let list = albums[track.albumId],
+                let asset = try? await JellyfinAPI.shared.getAudioAsset(track: track, list: list) 
+            {
                 assets.append(asset)
             }
         }

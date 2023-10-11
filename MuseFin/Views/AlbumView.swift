@@ -19,12 +19,28 @@ struct AlbumView: View {
     var album: MiniList
     
     func loadTracks(trackIdx: Int) async {
-        await manager.loadTracks(
-            list: album,
-            trackIdx: trackIdx,
-            trackList: tracks,
-            albums: [album.id: album]
-        )
+        let connected = JellyfinAPI.isConnectedToNetwork()
+        guard connected || tracks[trackIdx].downloaded == .full else {
+            return
+        }
+        
+        if connected {
+            await manager.loadTracks(
+                list: album,
+                trackIdx: trackIdx,
+                trackList: tracks,
+                albums: [album.id: album]
+            )
+        } else {
+            let downloadedTracks = tracks.filter { $0.downloaded == .full }
+            
+            await manager.loadTracks(
+                list: album,
+                trackIdx: downloadedTracks.firstIndex { $0.id == tracks[trackIdx].id } ?? 0,
+                trackList: downloadedTracks,
+                albums: [album.id: album]
+            )
+        }
     }
     
     init (manager: AudioManager, album: MiniList) {
@@ -137,6 +153,7 @@ struct AlbumView: View {
                                     EmptyView()
                                 }
                             }
+                            .foregroundStyle(JellyfinAPI.isConnectedToNetwork() || track.downloaded == .full ? .primaryText : .secondaryText)
                             .padding(.vertical, 4)
                             .frame(maxWidth: .infinity, alignment: .leading)
                         }
@@ -147,103 +164,105 @@ struct AlbumView: View {
         }
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
-            ToolbarItem(placement: .topBarTrailing) {
-                Menu {
-                    Button {
-                        Task {
-                            if isDownloaded {
-                                let offlineAlbum = offlineAlbums[0]
-                                if let offlineTracks = offlineAlbum.tracks?.allObjects as? [OfflineTrack],
-                                    !offlineTracks.contains(where: { track in
-                                        if let playlists = track.playlists, playlists.count > 0 {
-                                            return true
+            if JellyfinAPI.isConnectedToNetwork() {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Menu {
+                        Button {
+                            Task {
+                                if isDownloaded {
+                                    let offlineAlbum = offlineAlbums[0]
+                                    if let offlineTracks = offlineAlbum.tracks?.allObjects as? [OfflineTrack],
+                                       !offlineTracks.contains(where: { track in
+                                           if let playlists = track.playlists, playlists.count > 0 {
+                                               return true
+                                           }
+                                           
+                                           return false
+                                       })
+                                    {
+                                        for (idx, _) in tracks.enumerated() {
+                                            if let path = JellyfinAPI.shared.getOfflineTrackPath(trackId: tracks[idx].id) {
+                                                try? FileManager.default.removeItem(atPath: path)
+                                                tracks[idx].downloaded = .none
+                                            }
+                                        }
+                                        ctx.delete(offlineAlbum)
+                                    }
+                                    
+                                    if let lists = users[0].offlineLists {
+                                        var lists = lists.components(separatedBy: ",")
+                                        lists.removeAll { $0 == album.id }
+                                        users[0].offlineLists = lists.joined(separator: ",")
+                                    }
+                                    
+                                    try ctx.save()
+                                    isDownloaded = false
+                                } else {
+                                    if !offlineAlbums.indices.contains(0) {
+                                        let offlineAlbum = OfflineAlbum(context: ctx)
+                                        offlineAlbum.id = album.id
+                                        offlineAlbum.name = album.name
+                                        offlineAlbum.artist = album.artist
+                                        offlineAlbum.blurHash = album.blurHash
+                                        
+                                        do {
+                                            guard let url = JellyfinAPI.shared.getItemImageUrl(itemId: album.id) else {
+                                                return
+                                            }
+                                            let (data, _) = try await URLSession.shared.data(from: url)
+                                            offlineAlbum.artwork = data
+                                        } catch {
+                                            print(error.localizedDescription)
                                         }
                                         
-                                        return false
-                                    })
-                                {
+                                        Array(tracks.enumerated()).forEach { idx, track in
+                                            let offlineTrack = OfflineTrack(context: ctx)
+                                            offlineTrack.album = offlineAlbum
+                                            offlineTrack.id = track.id
+                                            offlineTrack.name = track.name
+                                            offlineTrack.artists = track.artists
+                                            offlineTrack.duration = track.duration
+                                            offlineTrack.trackNum = Int16(idx + 1)
+                                        }
+                                    }
+                                    
                                     for (idx, _) in tracks.enumerated() {
-                                        if let path = JellyfinAPI.shared.getOfflineTrackPath(trackId: tracks[idx].id) {
-                                            try? FileManager.default.removeItem(atPath: path)
-                                            tracks[idx].downloaded = .none
+                                        if tracks[idx].downloaded == .none {
+                                            let trackId = tracks[idx].id
+                                            Task {
+                                                tracks[idx].downloaded = .partial
+                                                try await JellyfinAPI.shared.downloadAudioAsset(trackId: trackId)
+                                                tracks[idx].downloaded = .full
+                                            }
                                         }
                                     }
-                                    ctx.delete(offlineAlbum)
+                                    
+                                    if let lists = users[0].offlineLists {
+                                        users[0].offlineLists = lists + ",\(album.id)"
+                                    }
+                                    
+                                    try ctx.save()
+                                    isDownloaded = true
                                 }
-                                
-                                if let lists = users[0].offlineLists {
-                                    var lists = lists.components(separatedBy: ",")
-                                    lists.removeAll { $0 == album.id }
-                                    users[0].offlineLists = lists.joined(separator: ",")
+                            }
+                        } label: {
+                            if isDownloaded {
+                                HStack {
+                                    Text("Remove from Downloads")
+                                    Spacer()
+                                    Image(systemName: "trash.fill")
                                 }
-                                
-                                try ctx.save()
-                                isDownloaded = false
                             } else {
-                                if !offlineAlbums.indices.contains(0) {
-                                    let offlineAlbum = OfflineAlbum(context: ctx)
-                                    offlineAlbum.id = album.id
-                                    offlineAlbum.name = album.name
-                                    offlineAlbum.artist = album.artist
-                                    offlineAlbum.blurHash = album.blurHash
-                                    
-                                    do {
-                                        guard let url = JellyfinAPI.shared.getItemImageUrl(itemId: album.id) else {
-                                            return
-                                        }
-                                        let (data, _) = try await URLSession.shared.data(from: url)
-                                        offlineAlbum.artwork = data
-                                    } catch {
-                                        print(error.localizedDescription)
-                                    }
-                                    
-                                    Array(tracks.enumerated()).forEach { idx, track in
-                                        let offlineTrack = OfflineTrack(context: ctx)
-                                        offlineTrack.album = offlineAlbum
-                                        offlineTrack.id = track.id
-                                        offlineTrack.name = track.name
-                                        offlineTrack.artists = track.artists
-                                        offlineTrack.duration = track.duration
-                                        offlineTrack.trackNum = Int16(idx + 1)
-                                    }
+                                HStack {
+                                    Text("Download")
+                                    Spacer()
+                                    Image(systemName: "arrow.down.circle")
                                 }
-                                
-                                for (idx, _) in tracks.enumerated() {
-                                    if tracks[idx].downloaded == .none {
-                                        let trackId = tracks[idx].id
-                                        Task {
-                                            tracks[idx].downloaded = .partial
-                                            try await JellyfinAPI.shared.downloadAudioAsset(trackId: trackId)
-                                            tracks[idx].downloaded = .full
-                                        }
-                                    }
-                                }
-                                
-                                if let lists = users[0].offlineLists {
-                                    users[0].offlineLists = lists + ",\(album.id)"
-                                }
-                                
-                                try ctx.save()
-                                isDownloaded = true
                             }
                         }
                     } label: {
-                        if isDownloaded {
-                            HStack {
-                                Text("Remove from Downloads")
-                                Spacer()
-                                Image(systemName: "trash.fill")
-                            }
-                        } else {
-                            HStack {
-                                Text("Download")
-                                Spacer()
-                                Image(systemName: "arrow.down.circle")
-                            }
-                        }
+                        Image(systemName: "ellipsis.circle.fill")
                     }
-                } label: {
-                    Image(systemName: "ellipsis.circle.fill")
                 }
             }
         }

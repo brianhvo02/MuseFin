@@ -332,7 +332,6 @@ class JellyfinAPI {
                 
                 if res.statusCode == 200 {
                     try data.write(to: URL(fileURLWithPath: trackId, relativeTo: musicDirectory).appendingPathExtension("aac"))
-                    print("download success")
                     return
                 }
                 
