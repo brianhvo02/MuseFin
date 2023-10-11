@@ -15,11 +15,19 @@ struct NavScrollView<Content: View>: View {
         ZStack {
             Color.background.edgesIgnoringSafeArea(.all)
             ScrollView {
+                if !JellyfinAPI.isConnectedToNetwork() {
+                    Text("You are in offline mode")
+                        .padding(.all)
+                        .frame(maxWidth: .infinity)
+                        .background(Color.secondaryBackground)
+                        .padding(.top)
+                }
+                
                 content
                     .padding(.horizontal)
                     .padding(.top)
                 
-                if let _ = manager.listId {
+                if let _ = manager.list?.id {
                     Spacer()
                         .frame(height: 100)
                 }

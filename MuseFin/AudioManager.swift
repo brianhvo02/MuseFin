@@ -13,6 +13,7 @@ import AVFAudio
 enum ListType {
     case none
     case album(Album)
+    case offlineAlbum(OfflineAlbum)
     case playlist(Playlist)
 }
 
@@ -20,23 +21,20 @@ class Player {
     static let shared = Player()
     var audioPlayer = QueuedAudioPlayer()
     
-    private init() {
-        let directoryURL = FileManager.default.urls(for: .musicDirectory, in: .userDomainMask)[0]
-        print(directoryURL.absoluteString)
-    }
+    private init() {}
 }
 
 class AudioManager: ObservableObject {
     var audioPlayer = Player.shared.audioPlayer
-    var list: ListType = .none
-    @Published var listId: String?
-    @Published var currentTrack: Track?
+    var list: MiniList?
+    @Published var currentTrack: MiniTrack?
     @Published var isPlaying = false
     @Published var elapsed = 0.0
     @Published var duration = 0.0
     @Published var isEditing = false
     @Published var repeatMode: RepeatMode = .off
-    var trackList: [Track] = []
+    var trackList: [MiniTrack] = []
+    var albumList: [String: MiniList] = [:]
     
     init() {
         try? AVAudioSession.sharedInstance().setCategory(.playback, mode: .default)
@@ -55,7 +53,7 @@ class AudioManager: ObservableObject {
                 if let idx = indices.newIndex {
                     let track = self.trackList[idx]
                     self.currentTrack = track
-                    self.duration = Double(track.runTimeTicks / 10000000)
+                    self.duration = track.duration
                 }
             }
         }
@@ -80,15 +78,15 @@ class AudioManager: ObservableObject {
         }
     }
     
-    func loadTracks(listId: String, list: ListType, trackIdx: Int = 0, trackList: [Track]) async {
-        if self.listId == listId {
+    func loadTracks(list: MiniList, trackIdx: Int = 0, trackList: [MiniTrack], albums: [String: MiniList]) async {
+        if self.list?.id == list.id {
             try? audioPlayer.jumpToItem(atIndex: trackIdx)
             return
         }
         
         self.trackList = trackList
+        self.albumList = albums
         DispatchQueue.main.async {
-            self.listId = listId
             self.list = list
         }
         
@@ -97,9 +95,9 @@ class AudioManager: ObservableObject {
         var assets: [DefaultAudioItem] = []
         
         for track in trackList {
-            let asset = await JellyfinAPI.shared.getAudioAsset(track: track)
-            if let item = asset {
-                assets.append(item)
+            if let list = albums[track.albumId],
+               let asset = try? await JellyfinAPI.shared.getAudioAsset(track: track, list: list) {
+                assets.append(asset)
             }
         }
         

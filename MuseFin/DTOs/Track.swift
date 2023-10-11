@@ -46,7 +46,3 @@ struct TrackContainer: Codable {
     let startIndex: Int
     let items: [Track]
 }
-
-struct ImageBlurHash: Codable {
-    let Primary: [String: String]?
-}

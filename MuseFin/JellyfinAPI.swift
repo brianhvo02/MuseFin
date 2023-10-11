@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import SystemConfiguration
 import UIKit
 import SwiftAudioEx
 import Nuke
@@ -33,11 +34,48 @@ extension LoginError: LocalizedError {
 
 class JellyfinAPI {
     static let shared = JellyfinAPI()
-    var user: User?
+    var userId: String?
     var token: String?
     var serverUrl: URL?
+    var musicDirectory: URL
     
-    private init() {}
+    private init() {
+        let fm = FileManager.default
+        musicDirectory = fm.urls(for: .documentDirectory, in: .userDomainMask)[0]
+        
+        if !fm.fileExists(atPath: musicDirectory.path()) {
+            try! fm.createDirectory(at: musicDirectory, withIntermediateDirectories: true, attributes: nil)
+        }
+        
+        fm.changeCurrentDirectoryPath(musicDirectory.path())
+    }
+    
+    static func isConnectedToNetwork() -> Bool {
+        var zeroAddress = sockaddr_in()
+        zeroAddress.sin_len = UInt8(MemoryLayout<sockaddr_in>.size)
+        zeroAddress.sin_family = sa_family_t(AF_INET)
+
+        guard let defaultRouteReachability = withUnsafePointer(to: &zeroAddress, {
+            $0.withMemoryRebound(to: sockaddr.self, capacity: 1) {
+                SCNetworkReachabilityCreateWithAddress(nil, $0)
+            }
+        }) else {
+            return false
+        }
+
+        var flags: SCNetworkReachabilityFlags = []
+        if !SCNetworkReachabilityGetFlags(defaultRouteReachability, &flags) {
+            return false
+        }
+        if flags.isEmpty {
+            return false
+        }
+
+        let isReachable = flags.contains(.reachable)
+        let needsConnection = flags.contains(.connectionRequired)
+
+        return (isReachable && !needsConnection)
+    }
     
     func request<T: Codable>(
         _ path: String, method: String? = nil,
@@ -101,7 +139,7 @@ class JellyfinAPI {
             serverUrl: serverUrl,
             contentType: Login.self
         )
-        user = result.user
+        userId = result.user.id
         token = result.accessToken
         self.serverUrl = serverUrl
         
@@ -127,7 +165,7 @@ class JellyfinAPI {
             throw LoginError.unauthorized
         }
         
-        self.user = result
+        self.userId = result.id
         self.token = user.token
         self.serverUrl = serverUrl
         
@@ -135,20 +173,20 @@ class JellyfinAPI {
     }
     
     func getViews() async throws -> ItemContainer {
-        guard let user = self.user else {
+        guard let userId = self.userId else {
             throw LoginError.unauthorized
         }
         
-        return try await request("/Users/\(user.id)/Views", contentType: ItemContainer.self)
+        return try await request("/Users/\(userId)/Views", contentType: ItemContainer.self)
     }
     
     func getChildren<T: Codable>(_ parentId: String, sortBy: [String], itemTypes: [String] = []) async throws -> T {
-        guard let user = self.user else {
+        guard let userId = userId else {
             throw LoginError.unauthorized
         }
         
         return try await request(
-            "/Users/\(user.id)/Items",
+            "/Users/\(userId)/Items",
             query: [
                 "parentId": parentId,
                 "includeItemTypes": itemTypes.joined(separator: ","),
@@ -159,12 +197,12 @@ class JellyfinAPI {
         )
     }
     
-    func getItem<T: Codable>() async throws -> T {
-        guard let user = self.user else {
+    func getItem(itemId: String) async throws -> Item {
+        guard let userId = userId else {
             throw LoginError.unauthorized
         }
         
-        return try await request("/Users/\(user.id)/Items", contentType: T.self)
+        return try await request("/Users/\(userId)/Items/\(itemId)", contentType: Item.self)
     }
     
     func getAlbums() async throws -> AlbumContainer {
@@ -187,8 +225,8 @@ class JellyfinAPI {
         return try await getChildren(view.id, sortBy: ["SortName"])
     }
     
-    func getItemImageUrl(itemId: String) -> URL? {
-        if var serverUrl = self.serverUrl {
+    func getItemImageUrl(itemId: String?) -> URL? {
+        if let itemId = itemId, var serverUrl = self.serverUrl {
             serverUrl.append(path: "/Items/\(itemId)/Images/Primary")
             return serverUrl
         }
@@ -199,49 +237,125 @@ class JellyfinAPI {
         return try await getChildren(parentId, sortBy: sortBy, itemTypes: ["Audio"])
     }
     
-    func getAudioAsset(track: Track) async -> DefaultAudioItem? {
-        guard let token = self.token, var serverUrl = self.serverUrl else {
-            return nil
+    func getAudioAssetUrl(trackId: String, download: Bool = false) throws -> URL {
+        guard var serverUrl = self.serverUrl else {
+            throw LoginError.unauthorized
         }
         
-        lazy var flacSupport = false
+        serverUrl.append(path: "/Audio/\(trackId)/universal")
+        
+        var sim: Bool?
         
         #if targetEnvironment(simulator)
-            flacSupport = true
+        sim = true
         #endif
         
-        serverUrl.append(path: "/Audio/\(track.id)/universal")
-        serverUrl.append(queryItems: [
-            URLQueryItem(name: "container", value: "mp3,aac,m4a|aac,m4b|aac\(flacSupport ? ",flac" : ""),webma,webm|webma"),
-            URLQueryItem(name: "audioCodec", value: "aac"),
-            URLQueryItem(name: "transcodingProtocol", value: "hls"),
-            URLQueryItem(name: "transcodingContainer", value: "ts")
-        ])
+        if download {
+            serverUrl.append(queryItems: [
+                URLQueryItem(name: "audioCodec", value: "aac"),
+                URLQueryItem(name: "transcodingContainer", value: "aac")
+            ])
+        } else {
+            serverUrl.append(queryItems: [
+                URLQueryItem(name: "container", value: "mp3,\(sim ?? false ? "aac,m4a|aac,m4b|aac,flac," : "")webma,webm|webma"),
+                URLQueryItem(name: "audioCodec", value: "aac"),
+                URLQueryItem(name: "transcodingProtocol", value: "hls")
+            ])
+        }
         
-        var artwork = UIImage(named: "AppIconLight")
-        
-        if let artworkUrl = JellyfinAPI.shared.getItemImageUrl(itemId: track.albumId) {
-            let result = try? await ImagePipeline.shared.image(for: artworkUrl)
-            if let result = result {
-                artwork = result
+        return serverUrl
+    }
+    
+    func getAudioAsset(track: MiniTrack, list: MiniList) async throws -> DefaultAudioItem {
+        if JellyfinAPI.isConnectedToNetwork() {
+            guard let _ = self.token else {
+                throw LoginError.unauthorized
             }
         }
         
+        var image = UIImage(named: "AppIconLight")
+        
+        if let artwork = list.artwork {
+            image = UIImage(data: artwork)
+        }
+        
+        if JellyfinAPI.isConnectedToNetwork(), let artworkUrl = JellyfinAPI.shared.getItemImageUrl(itemId: list.id) {
+            if let result = try? await ImagePipeline.shared.image(for: artworkUrl) {
+                image = result
+            }
+        }
+        
+        var path = URL(fileURLWithPath: track.id, relativeTo: musicDirectory)
+            .appendingPathExtension("aac")
+            .path
+        var sourceType: SourceType = .file
+        if !FileManager.default.fileExists(atPath: path) {
+            print("grabbing from server")
+            path = try! getAudioAssetUrl(trackId: track.id).absoluteString
+            sourceType = .stream
+        }
+        
         return DefaultAudioItemAssetOptionsProviding(
-            audioUrl: serverUrl.absoluteString,
-            artist: track.artists.joined(separator: ", "),
-            title: track.name, albumTitle: track.album,
-            sourceType: .stream,
-            artwork: artwork,
-            options: [
+            audioUrl: path,
+            artist: track.artists,
+            title: track.name, albumTitle: list.name,
+            sourceType: sourceType,
+            artwork: image,
+            options: sourceType == .stream ? [
                 "AVURLAssetHTTPHeaderFieldsKey": [
-                    "Authorization": "\(authHeader), Token=\"\(token)\""
+                    "Authorization": "\(authHeader), Token=\"\(token ?? "")\""
                 ]
-            ]
+            ] : [:]
         )
     }
     
-    func downloadAudioAsset(trackId: Track) async {
+    func downloadAudioAsset(trackId: String) async throws {
+        guard let token = self.token else {
+            throw LoginError.unauthorized
+        }
         
+        if FileManager.default.fileExists(atPath: trackId) {
+            return
+        }
+        
+        let url = try getAudioAssetUrl(trackId: trackId, download: true)
+        var request = URLRequest(url: url)
+        request.setValue("\(authHeader), Token=\"\(token)\"", forHTTPHeaderField: "Authorization")
+        
+        do {
+            let (data, res) = try await URLSession.shared.data(for: request)
+            
+            if let res = res as? HTTPURLResponse {
+                if res.statusCode == 401 {
+                    throw LoginError.unauthorized
+                }
+                
+                if res.statusCode == 200 {
+                    try data.write(to: URL(fileURLWithPath: trackId, relativeTo: musicDirectory).appendingPathExtension("aac"))
+                    print("download success")
+                    return
+                }
+                
+                throw LoginError.notFound
+            }
+        } catch is URLError {
+            throw LoginError.notFound
+        } catch {
+            print(error)
+            throw LoginError.unexpected(code: 99)
+        }
+    }
+    
+    func getOfflineTrackPath(trackId: String?) -> String? {
+        guard let trackId = trackId else {
+            return nil
+        }
+        
+        return URL(
+            fileURLWithPath: trackId,
+            relativeTo: musicDirectory
+        )
+        .appendingPathExtension("aac")
+        .path
     }
 }

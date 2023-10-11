@@ -16,6 +16,8 @@ protocol PAlbum: PBaseItem {
     var artistItems: [ItemRef] { get set }
     var albumArtist: String { get set }
     var albumArtists: [ItemRef] { get set }
+    var imageBlurHashes: ImageBlurHash { get set }
+    var imageTags: ImageTag { get set }
 }
 
 struct Album: PAlbum {
@@ -33,6 +35,8 @@ struct Album: PAlbum {
     var artistItems: [ItemRef]
     var albumArtist: String
     var albumArtists: [ItemRef]
+    var imageBlurHashes: ImageBlurHash
+    var imageTags: ImageTag
 }
 
 struct AlbumContainer: Codable {
@@ -40,3 +44,12 @@ struct AlbumContainer: Codable {
     let startIndex: Int
     let items: [Album]
 }
+
+struct ImageBlurHash: Codable {
+    let Primary: [String: String]?
+}
+
+struct ImageTag: Codable {
+    let Primary: String?;
+}
+

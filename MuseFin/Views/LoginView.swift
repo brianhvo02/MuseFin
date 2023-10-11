@@ -33,6 +33,7 @@ struct LoginView: View {
             user.id = payload.user.id
             user.token = payload.accessToken
             user.serverUrl = serverUrl.absoluteString
+            user.offlineLists = ""
             try ctx.save()
             loggedIn = true
         } catch {

@@ -7,6 +7,7 @@
 
 import SwiftUI
 import NukeUI
+import Network
 
 enum Views {
     case library
@@ -34,27 +35,36 @@ struct ContentView: View {
                                 .navigationTitle("Library")
                         }
                     }
-                    if let track = manager.currentTrack {
+                    if let track = manager.currentTrack, let album = manager.albumList[track.albumId] {
                         VStack {
                             Spacer()
                             HStack {
-                                HStack {
-                                    LazyImage(url: JellyfinAPI.shared.getItemImageUrl(itemId: track.albumId)) { image in
-                                        if let image = image.image {
-                                            image
-                                                .resizable()
-                                                .aspectRatio(1, contentMode: .fit)
-                                        } else {
-                                            Image("LogoDark")
-                                                .resizable()
-                                                .aspectRatio(1, contentMode: .fit)
+                                HStack(spacing: 16) {
+                                    if JellyfinAPI.isConnectedToNetwork() {
+                                        LazyImage(url: JellyfinAPI.shared.getItemImageUrl(itemId: album.id)) { image in
+                                            if let image = image.image {
+                                                image
+                                                    .resizable()
+                                                    .aspectRatio(1, contentMode: .fit)
+                                            } else {
+                                                Image("LogoDark")
+                                                    .resizable()
+                                                    .aspectRatio(1, contentMode: .fit)
+                                            }
                                         }
+                                        .frame(width: 40, height: 40)
+                                        .clipShape(RoundedRectangle(cornerRadius: 8))
+                                    } else if let artwork = album.artwork, let image = UIImage(data: artwork) {
+                                        Image(uiImage: image)
+                                            .resizable()
+                                            .aspectRatio(1, contentMode: .fit)
+                                            .frame(width: 40, height: 40)
+                                            .clipShape(RoundedRectangle(cornerRadius: 8))
                                     }
-                                    .frame(width: 32, height: 32)
-                                    .clipShape(RoundedRectangle(cornerRadius: 8))
+                                    
                                     
                                     Text(track.name)
-                                        .font(.custom("Quicksand", size: 20))
+                                        .lineLimit(1)
                                 }
                                 Spacer()
                                 HStack(spacing: 16) {
@@ -103,11 +113,20 @@ struct ContentView: View {
                         return
                     }
                     
+                    guard JellyfinAPI.isConnectedToNetwork() else {
+                        JellyfinAPI.shared.serverUrl = URL(string: users[0].serverUrl ?? "")
+                        JellyfinAPI.shared.token = users[0].token
+                        JellyfinAPI.shared.userId = users[0].id
+                        loggedIn = true
+                        return
+                    }
+                    
                     Task {
                         do {
                             let _ = try await JellyfinAPI.shared.tokenLogin(user: users[0])
                             loggedIn = true
                         } catch {
+                            print(error.localizedDescription)
                             loggedIn = false
                         }
                     }

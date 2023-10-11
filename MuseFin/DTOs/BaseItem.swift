@@ -39,7 +39,3 @@ struct ItemRef: Codable {
     let name: String
     let id: String
 }
-
-struct ImageTag: Codable {
-    let Primary: String;
-}

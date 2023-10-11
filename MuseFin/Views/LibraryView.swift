@@ -63,13 +63,12 @@ struct LibraryView: View {
             LibraryItem(id: Views.songs, display: "Songs", icon: "music.note") {
                 EmptyView()
             }
-            LibraryItem(id: Views.downloaded, display: "Downloaded", icon: "arrow.down.circle") {
-                EmptyView()
-            }
             Button(action: {
-                ctx.delete(users[0])
-                try? ctx.save()
-                loggedIn = false
+                if users.indices.contains(0) {
+                    ctx.delete(users[0])
+                    try? ctx.save()
+                    loggedIn = false
+                }
             }) {
                 HStack(spacing: 24) {
                     Image(systemName: "door.right.hand.open")

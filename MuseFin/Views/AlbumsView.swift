@@ -14,38 +14,28 @@ let alphabet = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J",
 
 struct AlbumsView: View {
     @FetchRequest(sortDescriptors: []) var users: FetchedResults<UserInfo>
-    @State private var albums: [Album] = []
-    @State private var error: String?
+    @FetchRequest(sortDescriptors: [SortDescriptor(\.artist)]) var offlineAlbums: FetchedResults<OfflineAlbum>
+    @State private var albums: [MiniList] = []
     @ObservedObject var manager: AudioManager
     @State private var searchText = ""
-    @State private var sortedAlbums = [String: [Album]]()
+    @State private var sortedAlbums = [String: [MiniList]]()
     
     let columns = [
         GridItem(.adaptive(minimum: 160))
     ]
     
-    func getAlbums() async {
-        do {
-            let payload = try await JellyfinAPI.shared.getAlbums()
-            albums = payload.items
-            sortAlbums(albums: albums)
-        } catch {
-            self.error = error.localizedDescription
-        }
-    }
-    
-    func sortAlbums(albums: [Album]) {
-        var sortedAlbumsTemp = [String: [Album]]()
+    func sortAlbums(albums: [MiniList]) {
+        var sortedAlbumsTemp = [String: [MiniList]]()
         
         albums.forEach { album in
-            guard !album.albumArtist.isEmpty && alphabet.contains(album.albumArtist.first!.uppercased()) else {
+            guard let artist = album.artist, !artist.isEmpty && alphabet.contains(artist.first!.uppercased()) else {
                 if sortedAlbumsTemp["#"] == nil {
                     sortedAlbumsTemp["#"] = []
                 }
                 sortedAlbumsTemp["#"]!.append(album)
                 return
             }
-            let letter = album.albumArtist.first!.uppercased()
+            let letter = artist.first!.uppercased()
             if sortedAlbumsTemp[letter] == nil {
                 sortedAlbumsTemp[letter] = []
             }
@@ -56,36 +46,47 @@ struct AlbumsView: View {
     }
     
     var body: some View {
-        if let error = error {
-            Text(error)
-        }
         NavScrollView(manager: manager) {
             ForEach(alphabet, id: \.self) { letter in
                 if let filtered = sortedAlbums[letter] {
                     Section(header: Text(letter)) {
                         LazyVGrid(columns: columns, spacing: 20) {
                             ForEach(filtered, id: \.id) { album in
-                                NavigationLink(destination: AlbumView(album: album, manager: manager)) {
+                                NavigationLink(destination: AlbumView(manager: manager, album: album)) {
                                     VStack {
-                                        LazyImage(
-                                            url: JellyfinAPI.shared.getItemImageUrl(itemId: album.id)
-                                        ) { image in
-                                            if let image = image.image {
-                                                image
-                                                    .resizable()
-                                                    .aspectRatio(1, contentMode: .fit)
-                                            } else {
-                                                Image("LogoDark")
-                                                    .resizable()
-                                                    .aspectRatio(1, contentMode: .fit)
+                                        if JellyfinAPI.isConnectedToNetwork() {
+                                            LazyImage(
+                                                url: JellyfinAPI.shared.getItemImageUrl(itemId: album.id)
+                                            ) { image in
+                                                if let image = image.image {
+                                                    image
+                                                        .resizable()
+                                                        .aspectRatio(1, contentMode: .fit)
+                                                } else {
+                                                    Image("LogoDark")
+                                                        .resizable()
+                                                        .aspectRatio(1, contentMode: .fit)
+                                                }
                                             }
+                                            .frame(width: 160, height: 160)
+                                            .clipShape(RoundedRectangle(cornerRadius: 8))
+                                        } else if let artwork = album.artwork, let image = UIImage(data: artwork) {
+                                            Image(uiImage: image)
+                                                .resizable()
+                                                .aspectRatio(1, contentMode: .fit)
+                                                .frame(width: 160, height: 160)
+                                                .clipShape(RoundedRectangle(cornerRadius: 8))
+                                        } else {
+                                            Image("LogoDark")
+                                                .resizable()
+                                                .aspectRatio(1, contentMode: .fit)
+                                                .frame(width: 160, height: 160)
+                                                .clipShape(RoundedRectangle(cornerRadius: 8))
                                         }
-                                        .frame(width: 160, height: 160)
-                                        .clipShape(RoundedRectangle(cornerRadius: 8))
                                         
                                         Text(album.name)
                                             .fontWeight(.bold)
-                                        Text(album.albumArtist)
+                                        Text(album.artist ?? "")
                                             .foregroundStyle(Color.gray)
                                     }
                                     .lineLimit(1)
@@ -102,12 +103,47 @@ struct AlbumsView: View {
             prompt: "Find in Albums"
         )
         .onChange(of: searchText, initial: true) {
-            let filteredAlbums = searchText.isEmpty ? albums : albums.filter { $0.name.lowercased().contains(searchText.lowercased()) }
-            sortAlbums(albums: filteredAlbums)
+            if albums.count > 0 {
+                let filteredAlbums = searchText.isEmpty ? albums : albums.filter { $0.name.lowercased().contains(searchText.lowercased()) }
+                sortAlbums(albums: filteredAlbums)
+            }
         }
         .onAppear {
-            Task {
-                await getAlbums()
+            if JellyfinAPI.isConnectedToNetwork() {
+                Task {
+                    do {
+                        let payload = try await JellyfinAPI.shared.getAlbums()
+                        albums = payload.items.map { item in
+                            var blurHash: String? = nil
+                            if
+                                let tag = item.imageTags.Primary,
+                                let hash = item.imageBlurHashes.Primary
+                            {
+                                blurHash = hash[tag]
+                            }
+                            return MiniList(
+                                id: item.id,
+                                name: item.name,
+                                artist: item.albumArtist,
+                                blurHash: blurHash
+                            )
+                        }
+                        sortAlbums(albums: albums)
+                    } catch {
+                        print(error.localizedDescription)
+                    }
+                }
+            } else {
+                albums = offlineAlbums.map { album in
+                    return MiniList(
+                        id: album.id ?? "",
+                        name: album.name ?? "",
+                        artist: album.artist,
+                        artwork: album.artwork,
+                        blurHash: album.blurHash
+                    )
+                }
+                sortAlbums(albums: albums)
             }
         }
     }

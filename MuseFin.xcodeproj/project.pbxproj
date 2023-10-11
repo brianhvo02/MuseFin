@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		7117BCB52AD53BBD00328712 /* Minis.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7117BCB42AD53BBD00328712 /* Minis.swift */; };
 		7178703B2AD21A2F00C07423 /* SwiftAudioEx in Frameworks */ = {isa = PBXBuildFile; productRef = 7178703A2AD21A2F00C07423 /* SwiftAudioEx */; };
 		7178703F2AD242FD00C07423 /* MusicPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7178703E2AD242FD00C07423 /* MusicPlayer.swift */; };
 		717870412AD24B9D00C07423 /* BlurHashDecoder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 717870402AD24B9D00C07423 /* BlurHashDecoder.swift */; };
@@ -44,6 +45,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		7117BCB42AD53BBD00328712 /* Minis.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Minis.swift; sourceTree = "<group>"; };
 		7178703E2AD242FD00C07423 /* MusicPlayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MusicPlayer.swift; sourceTree = "<group>"; };
 		717870402AD24B9D00C07423 /* BlurHashDecoder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlurHashDecoder.swift; sourceTree = "<group>"; };
 		717870422AD276E200C07423 /* NavScrollView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavScrollView.swift; sourceTree = "<group>"; };
@@ -112,6 +114,7 @@
 		71A07AE82ACB496C00DD899A /* MuseFin */ = {
 			isa = PBXGroup;
 			children = (
+				7117BCB42AD53BBD00328712 /* Minis.swift */,
 				71E99EA82ACE40690008CF2D /* Images */,
 				71A07B042ACB862300DD899A /* Views */,
 				71A07AFC2ACB66E900DD899A /* DTOs */,
@@ -269,6 +272,7 @@
 				71E99E9E2ACE0D0B0008CF2D /* ContentView.swift in Sources */,
 				717870492AD3F0E700C07423 /* PlaylistsView.swift in Sources */,
 				71A07AF82ACB49E300DD899A /* LoginView.swift in Sources */,
+				7117BCB52AD53BBD00328712 /* Minis.swift in Sources */,
 				71E99E9C2ACDF7190008CF2D /* AudioManager.swift in Sources */,
 				71A07AEC2ACB496C00DD899A /* LibraryView.swift in Sources */,
 				71A07B132ACCC85000DD899A /* Item.swift in Sources */,
