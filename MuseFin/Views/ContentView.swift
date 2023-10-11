@@ -6,7 +6,6 @@
 //
 
 import SwiftUI
-import NukeUI
 import Network
 
 enum Views {
@@ -40,28 +39,7 @@ struct ContentView: View {
                             Spacer()
                             HStack {
                                 HStack(spacing: 16) {
-                                    if JellyfinAPI.isConnectedToNetwork() {
-                                        LazyImage(url: JellyfinAPI.shared.getItemImageUrl(itemId: album.id)) { image in
-                                            if let image = image.image {
-                                                image
-                                                    .resizable()
-                                                    .aspectRatio(1, contentMode: .fit)
-                                            } else {
-                                                Image("LogoDark")
-                                                    .resizable()
-                                                    .aspectRatio(1, contentMode: .fit)
-                                            }
-                                        }
-                                        .frame(width: 40, height: 40)
-                                        .clipShape(RoundedRectangle(cornerRadius: 8))
-                                    } else if let artwork = album.artwork, let image = UIImage(data: artwork) {
-                                        Image(uiImage: image)
-                                            .resizable()
-                                            .aspectRatio(1, contentMode: .fit)
-                                            .frame(width: 40, height: 40)
-                                            .clipShape(RoundedRectangle(cornerRadius: 8))
-                                    }
-                                    
+                                    ListImage(list: album, width: 40, height: 40)
                                     
                                     Text(track.name)
                                         .lineLimit(1)
@@ -97,7 +75,7 @@ struct ContentView: View {
                                 showNowPlaying.toggle()
                             }
                             .fullScreenCover(isPresented: $showNowPlaying) {
-                                MusicPlayer(showNowPlaying: $showNowPlaying, path: $path, manager: manager)
+                                MusicPlayerView(showNowPlaying: $showNowPlaying, path: $path, manager: manager)
                             }
                         }
                     }

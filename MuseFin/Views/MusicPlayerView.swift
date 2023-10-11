@@ -1,12 +1,11 @@
 //
-//  MusicPlayer.swift
+//  MusicPlayerView.swift
 //  MuseFin
 //
 //  Created by Brian Huy Vo on 10/7/23.
 //
 
 import SwiftUI
-import NukeUI
 import SwiftAudioEx
 
 struct Blur: View {
@@ -37,7 +36,7 @@ func convertSeconds(_ totalSeconds: Double) -> String {
 }
 
 
-struct MusicPlayer: View {
+struct MusicPlayerView: View {
     @Binding var showNowPlaying: Bool
     @Binding var path: NavigationPath
     @ObservedObject var manager: AudioManager
@@ -71,27 +70,8 @@ struct MusicPlayer: View {
                 
                 Spacer()
                 
-                if JellyfinAPI.isConnectedToNetwork() {
-                    LazyImage(url: JellyfinAPI.shared.getItemImageUrl(itemId: currentAlbum.id)) { image in
-                        if let image = image.image {
-                            image
-                                .resizable()
-                                .aspectRatio(1, contentMode: .fit)
-                        } else {
-                            Image("LogoDark")
-                                .resizable()
-                                .aspectRatio(1, contentMode: .fit)
-                        }
-                    }
+                ListImage(list: currentAlbum)
                     .frame(maxWidth: .infinity)
-                    .clipShape(RoundedRectangle(cornerRadius: 8))
-                } else if let artwork = currentAlbum.artwork, let image = UIImage(data: artwork) {
-                    Image(uiImage: image)
-                        .resizable()
-                        .aspectRatio(1, contentMode: .fit)
-                        .frame(maxWidth: .infinity)
-                        .clipShape(RoundedRectangle(cornerRadius: 8))
-                }
                 
                 Spacer()
                 

@@ -6,7 +6,6 @@
 //
 
 import SwiftUI
-import NukeUI
 
 struct PlaylistsView: View {
     @FetchRequest(sortDescriptors: []) var users: FetchedResults<UserInfo>
@@ -28,35 +27,7 @@ struct PlaylistsView: View {
                 ) { playlist in
                     NavigationLink(destination: PlaylistView(manager: manager, playlist: playlist)) {
                         HStack(spacing: 16) {
-                            if JellyfinAPI.isConnectedToNetwork() {
-                                LazyImage(
-                                    url: JellyfinAPI.shared.getItemImageUrl(itemId: playlist.id)
-                                ) { image in
-                                    if let image = image.image {
-                                        image
-                                            .resizable()
-                                            .aspectRatio(1, contentMode: .fit)
-                                    } else {
-                                        Image("LogoDark")
-                                            .resizable()
-                                            .aspectRatio(1, contentMode: .fit)
-                                    }
-                                }
-                                .frame(width: 48, height: 48)
-                                .clipShape(RoundedRectangle(cornerRadius: 8))
-                            } else if let artwork = playlist.artwork, let image = UIImage(data: artwork) {
-                                Image(uiImage: image)
-                                    .resizable()
-                                    .aspectRatio(1, contentMode: .fit)
-                                    .frame(width: 48, height: 48)
-                                    .clipShape(RoundedRectangle(cornerRadius: 8))
-                            } else {
-                                Image("LogoDark")
-                                    .resizable()
-                                    .aspectRatio(1, contentMode: .fit)
-                                    .frame(width: 48, height: 48)
-                                    .clipShape(RoundedRectangle(cornerRadius: 8))
-                            }
+                            ListImage(list: playlist, width: 48, height: 48)
                             
                             Text(playlist.name)
                                 .fontWeight(.bold)

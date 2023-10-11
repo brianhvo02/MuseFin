@@ -10,13 +10,6 @@ import SwiftAudioEx
 import Nuke
 import AVFAudio
 
-enum ListType {
-    case none
-    case album(Album)
-    case offlineAlbum(OfflineAlbum)
-    case playlist(Playlist)
-}
-
 class Player {
     static let shared = Player()
     var audioPlayer = QueuedAudioPlayer()

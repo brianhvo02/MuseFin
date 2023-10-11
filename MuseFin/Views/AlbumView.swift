@@ -7,7 +7,6 @@
 
 import SwiftUI
 import AVKit
-import NukeUI
 
 struct AlbumView: View {
     @FetchRequest var offlineAlbums: FetchedResults<OfflineAlbum>
@@ -52,33 +51,7 @@ struct AlbumView: View {
     var body: some View {
         NavScrollView(manager: manager) {
             VStack(alignment: .center, spacing: 16) {
-                if JellyfinAPI.isConnectedToNetwork() {
-                    LazyImage(url: JellyfinAPI.shared.getItemImageUrl(itemId: album.id)) { image in
-                        if let image = image.image {
-                            image
-                                .resizable()
-                                .aspectRatio(1, contentMode: .fit)
-                        } else {
-                            Image("LogoDark")
-                                .resizable()
-                                .aspectRatio(1, contentMode: .fit)
-                        }
-                    }
-                    .frame(width: 250, height: 250)
-                    .clipShape(RoundedRectangle(cornerRadius: 8))
-                } else if let artwork = album.artwork, let image = UIImage(data: artwork) {
-                    Image(uiImage: image)
-                        .resizable()
-                        .aspectRatio(1, contentMode: .fit)
-                        .frame(width: 160, height: 160)
-                        .clipShape(RoundedRectangle(cornerRadius: 8))
-                } else {
-                    Image("LogoDark")
-                        .resizable()
-                        .aspectRatio(1, contentMode: .fit)
-                        .frame(width: 160, height: 160)
-                        .clipShape(RoundedRectangle(cornerRadius: 8))
-                }
+                ListImage(list: album, width: 250, height: 250)
                 
                 VStack(spacing: 4) {
                     Text(album.name)

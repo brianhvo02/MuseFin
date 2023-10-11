@@ -6,7 +6,6 @@
 //
 
 import SwiftUI
-import NukeUI
 
 struct PlaylistView: View {
     @FetchRequest var offlinePlaylists: FetchedResults<OfflinePlaylist>
@@ -27,33 +26,7 @@ struct PlaylistView: View {
     var body: some View {
         NavScrollView(manager: manager) {
             VStack(alignment: .center, spacing: 16) {
-                if JellyfinAPI.isConnectedToNetwork() {
-                    LazyImage(url: JellyfinAPI.shared.getItemImageUrl(itemId: playlist.id)) { image in
-                        if let image = image.image {
-                            image
-                                .resizable()
-                                .aspectRatio(1, contentMode: .fit)
-                        } else {
-                            Image("LogoDark")
-                                .resizable()
-                                .aspectRatio(1, contentMode: .fit)
-                        }
-                    }
-                    .frame(width: 250, height: 250)
-                    .clipShape(RoundedRectangle(cornerRadius: 8))
-                } else if let artwork = playlist.artwork, let image = UIImage(data: artwork) {
-                    Image(uiImage: image)
-                        .resizable()
-                        .aspectRatio(1, contentMode: .fit)
-                        .frame(width: 250, height: 250)
-                        .clipShape(RoundedRectangle(cornerRadius: 8))
-                } else {
-                    Image("LogoDark")
-                        .resizable()
-                        .aspectRatio(1, contentMode: .fit)
-                        .frame(width: 250, height: 250)
-                        .clipShape(RoundedRectangle(cornerRadius: 8))
-                }
+                ListImage(list: playlist, width: 250, height: 250)
                 
                 Text(playlist.name)
                     .font(.custom("Quicksand", size: 24))
@@ -96,48 +69,8 @@ struct PlaylistView: View {
                         }
                     }) {
                         HStack(spacing: 12) {
-                            if JellyfinAPI.isConnectedToNetwork() {
-                                LazyImage(url: JellyfinAPI.shared.getItemImageUrl(itemId: albums[track.albumId]?.id)) { image in
-                                    if let image = image.image {
-                                        image
-                                            .resizable()
-                                            .aspectRatio(1, contentMode: .fit)
-                                    } else {
-                                        Image("LogoDark")
-                                            .resizable()
-                                            .aspectRatio(1, contentMode: .fit)
-                                    }
-                                }
-                                .frame(width: 48, height: 48)
-                                .clipShape(RoundedRectangle(cornerRadius: 8))
-                                .brightness(manager.list?.id == playlist.id && manager.currentTrack?.id == track.id ? -0.5 : 0)
-                                .overlay {
-                                    if manager.list?.id == playlist.id && manager.currentTrack?.id == track.id {
-                                        Image(systemName: "chart.bar.xaxis")
-                                            .symbolEffect(.pulse, options: .repeating, isActive: manager.isPlaying)
-                                            .foregroundStyle(Color.secondaryText)
-                                    }
-                                }
-                            } else if let album = albums[track.albumId], let artwork = album.artwork, let image = UIImage(data: artwork) {
-                                Image(uiImage: image)
-                                    .resizable()
-                                    .aspectRatio(1, contentMode: .fit)
-                                    .frame(width: 48, height: 48)
-                                    .clipShape(RoundedRectangle(cornerRadius: 8))
-                                    .brightness(manager.list?.id == playlist.id && manager.currentTrack?.id == track.id ? -0.5 : 0)
-                                    .overlay {
-                                        if manager.list?.id == playlist.id && manager.currentTrack?.id == track.id {
-                                            Image(systemName: "chart.bar.xaxis")
-                                                .symbolEffect(.pulse, options: .repeating, isActive: manager.isPlaying)
-                                                .foregroundStyle(Color.secondaryText)
-                                        }
-                                    }
-                            } else {
-                                Image("LogoDark")
-                                    .resizable()
-                                    .aspectRatio(1, contentMode: .fit)
-                                    .frame(width: 48, height: 48)
-                                    .clipShape(RoundedRectangle(cornerRadius: 8))
+                            if let album = albums[track.albumId] {
+                                ListImage(list: album, width: 48, height: 48)
                                     .brightness(manager.list?.id == playlist.id && manager.currentTrack?.id == track.id ? -0.5 : 0)
                                     .overlay {
                                         if manager.list?.id == playlist.id && manager.currentTrack?.id == track.id {
@@ -147,7 +80,6 @@ struct PlaylistView: View {
                                         }
                                     }
                             }
-                            
                             
                             VStack(alignment: .leading, spacing: 8) {
                                 Text(track.name)

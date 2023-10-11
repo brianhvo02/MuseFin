@@ -6,7 +6,6 @@
 //
 
 import SwiftUI
-import NukeUI
 
 let alphabet = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J",
                 "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T",
@@ -56,35 +55,7 @@ struct AlbumsView: View {
                                     ForEach(filtered, id: \.id) { album in
                                         NavigationLink(destination: AlbumView(manager: manager, album: album)) {
                                             VStack {
-                                                if JellyfinAPI.isConnectedToNetwork() {
-                                                    LazyImage(
-                                                        url: JellyfinAPI.shared.getItemImageUrl(itemId: album.id)
-                                                    ) { image in
-                                                        if let image = image.image {
-                                                            image
-                                                                .resizable()
-                                                                .aspectRatio(1, contentMode: .fit)
-                                                        } else {
-                                                            Image("LogoDark")
-                                                                .resizable()
-                                                                .aspectRatio(1, contentMode: .fit)
-                                                        }
-                                                    }
-                                                    .frame(width: 160, height: 160)
-                                                    .clipShape(RoundedRectangle(cornerRadius: 8))
-                                                } else if let artwork = album.artwork, let image = UIImage(data: artwork) {
-                                                    Image(uiImage: image)
-                                                        .resizable()
-                                                        .aspectRatio(1, contentMode: .fit)
-                                                        .frame(width: 160, height: 160)
-                                                        .clipShape(RoundedRectangle(cornerRadius: 8))
-                                                } else {
-                                                    Image("LogoDark")
-                                                        .resizable()
-                                                        .aspectRatio(1, contentMode: .fit)
-                                                        .frame(width: 160, height: 160)
-                                                        .clipShape(RoundedRectangle(cornerRadius: 8))
-                                                }
+                                                ListImage(list: album, width: 160, height: 160)
                                                 
                                                 Text(album.name)
                                                     .fontWeight(.bold)
