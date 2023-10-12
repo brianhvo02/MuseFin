@@ -19,7 +19,7 @@ struct Blur: View {
             Image(uiImage: image)
                 .resizable()
                 .aspectRatio(contentMode: .fill)
-                .brightness(-0.2)
+                .brightness(-0.3)
         } else {
             Color.secondaryBackground
         }
@@ -105,9 +105,10 @@ struct MusicPlayerView: View {
                 
                 HStack {
                     Button {
-                        
+                        manager.toggleShuffle()
                     } label: {
                         Image(systemName: "shuffle")
+                            .foregroundStyle(manager.shuffle ? Color.accent : Color.primaryText)
                     }
                     
                     Spacer()

@@ -29,17 +29,19 @@ enum RepeatMode {
 class AudioManager: ObservableObject {
     static let shared = AudioManager()
     var audioPlayer = AVQueuePlayer()
+    
     @Published var listId: String = ""
     @Published var currentTrack: TrackMetadata?
     @Published var isPlaying = false
     @Published var elapsed = 0.0
     @Published var isEditing = false
     @Published var repeatMode: RepeatMode = .off
+    @Published var shuffle = false
     
     var trackAssets: [AVPlayerItem] = []
+    var shuffledAssets: [AVPlayerItem] = []
     var trackMetadata: [TrackMetadata] = []
     var playerElapsedTimeObserver: Any?
-    var playerStatusObserver: NSKeyValueObservation?
     var playerCurrentItemObserver: NSKeyValueObservation?
     var nowPlayingInfo: [String: Any] = [:]
     
@@ -96,7 +98,7 @@ class AudioManager: ObservableObject {
     }
     
     func getAssetIndex(_ asset: AVPlayerItem) -> Int? {
-        return trackAssets.firstIndex(of: asset)
+        return getAssets().firstIndex(of: asset)
     }
     
     func getCurrentIndex() -> Int? {
@@ -129,7 +131,7 @@ class AudioManager: ObservableObject {
         
         if
             let asset = audioPlayer.currentItem,
-            let trackIdx = trackAssets.firstIndex(of: asset)
+            let trackIdx = getAssetIndex(asset)
         {
             if repeatMode == .off && trackIdx == 0 {
                 return
@@ -143,12 +145,12 @@ class AudioManager: ObservableObject {
             }
             
             if trackIdx == 0 {
-                if let lastAsset = trackAssets.last {
+                if let lastAsset = getAssets().last {
                     audioPlayer.removeAllItems()
-                    audioPlayer.insert(lastAsset, after: nil)
+                    addToQueue(asset: lastAsset)
                 }
             } else {
-                let prevAsset = trackAssets[trackIdx - 1]
+                let prevAsset = getAssets()[trackIdx - 1]
                 audioPlayer.replaceCurrentItem(with: prevAsset)
                 audioPlayer.seek(to: CMTime.zero)
                 audioPlayer.insert(asset, after: prevAsset)
@@ -163,7 +165,7 @@ class AudioManager: ObservableObject {
     func next() {
         if
             let asset = audioPlayer.currentItem,
-            let trackIdx = trackAssets.firstIndex(of: asset)
+            let trackIdx = getAssets().firstIndex(of: asset)
         {
             if repeatMode == .off && trackIdx == trackAssets.count - 1 {
                 return
@@ -177,16 +179,9 @@ class AudioManager: ObservableObject {
             }
             
             if trackIdx + 1 == trackAssets.count {
-                trackAssets.enumerated().forEach { idx, asset in
-                    guard idx < trackAssets.count - 1 else {
-                        return
-                    }
-                    
-                    audioPlayer.insert(asset, after: nil)
-                }
-                
+                addToQueue(assets: getAssets(), to: trackAssets.count - 1)
                 audioPlayer.advanceToNextItem()
-                audioPlayer.insert(trackAssets[trackAssets.count - 1], after: nil)
+                addToQueue(asset: getAssets().last)
             } else {
                 audioPlayer.advanceToNextItem()
             }
@@ -195,6 +190,70 @@ class AudioManager: ObservableObject {
         }
         
         audioPlayer.seek(to: CMTime.zero)
+    }
+    
+    func clearQueue() {
+        audioPlayer.items().enumerated().forEach { idx, asset in
+            guard idx > 0 else {
+                return
+            }
+            
+            audioPlayer.remove(asset)
+        }
+    }
+    
+    func addToQueue(asset: AVPlayerItem?) {
+        guard let asset = asset else {
+            return
+        }
+        
+        audioPlayer.insert(asset, after: nil)
+    }
+    
+    func addToQueue(assets: [AVPlayerItem], from: Int? = nil, to: Int? = nil) {
+        (
+            from == 0 && to == nil
+                ? assets
+                : Array(
+                    assets[
+                        (from ?? 0) ..< (to ?? assets.count)
+                    ]
+                )
+        )
+        .forEach { asset in
+            audioPlayer.insert(asset, after: nil)
+        }
+    }
+    
+    func toggleShuffle() {
+        guard let currentAsset = audioPlayer.currentItem else {
+            return
+        }
+        
+        shuffle.toggle()
+        
+        if shuffle {
+            let shuffled = trackAssets.filter { $0 != currentAsset }.shuffled()
+            
+            shuffledAssets = [currentAsset]
+            shuffledAssets.append(contentsOf: shuffled)
+            
+            if repeatMode != .track {
+                clearQueue()
+                addToQueue(assets: shuffled)
+            }
+        } else {
+            guard let trackIdx = getAssetIndex(currentAsset), repeatMode != .track else {
+                return
+            }
+            
+            clearQueue()
+            addToQueue(assets: trackAssets, from: trackIdx + 1)
+        }
+    }
+    
+    func getAssets() -> [AVPlayerItem] {
+        return shuffle ? shuffledAssets : trackAssets
     }
     
     func seek(_ seconds: Double) {
@@ -225,7 +284,10 @@ class AudioManager: ObservableObject {
     }
     
     @Sendable func onCurrentItemChange(player: AVQueuePlayer, change: NSKeyValueObservedChange<AVPlayerItem?>) {
-        if let trackIdx = getCurrentIndex() {
+        if
+            let asset = player.currentItem,
+            let trackIdx = trackAssets.firstIndex(of: asset)
+        {
             DispatchQueue.main.async {
                 self.currentTrack = self.trackMetadata[trackIdx]
                 self.setNowPlaying()
@@ -238,7 +300,7 @@ class AudioManager: ObservableObject {
             if repeatMode == .track {
                 pause()
                 audioPlayer.remove(asset)
-                audioPlayer.insert(asset, after: nil)
+                addToQueue(asset: asset)
                 seek(0)
                 play()
             } else if
@@ -246,16 +308,10 @@ class AudioManager: ObservableObject {
                 trackIdx == trackAssets.count - 1
             {
                 pause()
-                trackAssets.enumerated().forEach { idx, asset in
-                    guard idx < trackAssets.count - 1 else {
-                        return
-                    }
-                    
-                    audioPlayer.insert(asset, after: nil)
-                }
                 
+                addToQueue(assets: getAssets(), to: trackAssets.count - 1)
                 audioPlayer.advanceToNextItem()
-                audioPlayer.insert(trackAssets[trackAssets.count - 1], after: nil)
+                addToQueue(asset: getAssets().last)
                 
                 audioPlayer.seek(to: CMTime.zero)
                 
@@ -271,14 +327,21 @@ class AudioManager: ObservableObject {
             self.pause()
         }
         
+        let wasShuffled = shuffle
+        
+        DispatchQueue.main.async {
+            self.shuffle = false
+        }
+        
         if listId == list.id {
             audioPlayer.removeAllItems()
             
-            trackAssets[trackIdx ..< trackAssets.count].forEach { asset in
-                audioPlayer.insert(asset, after: nil)
-            }
+            addToQueue(assets: trackAssets, from: trackIdx)
             
             DispatchQueue.main.async {
+                if wasShuffled {
+                    self.toggleShuffle()
+                }
                 self.seek(0)
                 self.play()
             }
@@ -308,11 +371,12 @@ class AudioManager: ObservableObject {
         }
         
         audioPlayer.removeAllItems()
-        trackAssets[trackIdx ..< trackAssets.count].forEach { asset in
-            audioPlayer.insert(asset, after: nil)
-        }
+        addToQueue(assets: trackAssets, from: trackIdx)
         
         DispatchQueue.main.async {
+            if wasShuffled {
+                self.toggleShuffle()
+            }
             self.play()
         }
     }
@@ -332,21 +396,13 @@ class AudioManager: ObservableObject {
     
     func repeatOne() {
         if repeatMode == .track {
-            audioPlayer.items().enumerated().forEach { idx, asset in
-                guard idx > 0 else {
-                    return
-                }
-                
-                audioPlayer.remove(asset)
-            }
+            clearQueue()
         } else {
             guard let trackIdx = getCurrentIndex(), trackIdx < trackAssets.count - 1 else {
                 return
             }
             
-            trackAssets[trackIdx + 1 ..< trackAssets.count].forEach { asset in
-                audioPlayer.insert(asset, after: nil)
-            }
+            addToQueue(assets: getAssets(), from: trackIdx + 1)
         }
     }
 }
