@@ -59,6 +59,7 @@ struct LibraryView: View {
             LibraryItem(id: Views.albums, display: "Albums", icon: "square.stack") {
                 AlbumsView(manager: manager)
                     .navigationTitle("Albums")
+                EmptyView()
             }
             LibraryItem(id: Views.songs, display: "Songs", icon: "music.note") {
                 EmptyView()

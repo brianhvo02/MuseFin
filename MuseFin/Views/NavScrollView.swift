@@ -27,7 +27,7 @@ struct NavScrollView<Content: View>: View {
                     .padding(.horizontal)
                     .padding(.top)
                 
-                if let _ = manager.list?.id {
+                if let _ = manager.currentTrack {
                     Spacer()
                         .frame(height: 100)
                 }

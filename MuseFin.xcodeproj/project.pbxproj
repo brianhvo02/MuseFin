@@ -11,7 +11,6 @@
 		7117BCB72AD680DE00328712 /* Utils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7117BCB62AD680DE00328712 /* Utils.swift */; };
 		7117BCB92AD6847E00328712 /* AlphabetScroller.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7117BCB82AD6847E00328712 /* AlphabetScroller.swift */; };
 		7117BCBB2AD7258400328712 /* ListImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7117BCBA2AD7258400328712 /* ListImage.swift */; };
-		7178703B2AD21A2F00C07423 /* SwiftAudioEx in Frameworks */ = {isa = PBXBuildFile; productRef = 7178703A2AD21A2F00C07423 /* SwiftAudioEx */; };
 		7178703F2AD242FD00C07423 /* MusicPlayerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7178703E2AD242FD00C07423 /* MusicPlayerView.swift */; };
 		717870412AD24B9D00C07423 /* BlurHashDecoder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 717870402AD24B9D00C07423 /* BlurHashDecoder.swift */; };
 		717870432AD276E200C07423 /* NavScrollView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 717870422AD276E200C07423 /* NavScrollView.swift */; };
@@ -91,7 +90,6 @@
 				71E99EA52ACE320A0008CF2D /* NukeUI in Frameworks */,
 				71E99EA12ACE320A0008CF2D /* Nuke in Frameworks */,
 				71E99EA32ACE320A0008CF2D /* NukeExtensions in Frameworks */,
-				7178703B2AD21A2F00C07423 /* SwiftAudioEx in Frameworks */,
 				71E99EA72ACE320A0008CF2D /* NukeVideo in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -208,7 +206,6 @@
 				71E99EA22ACE320A0008CF2D /* NukeExtensions */,
 				71E99EA42ACE320A0008CF2D /* NukeUI */,
 				71E99EA62ACE320A0008CF2D /* NukeVideo */,
-				7178703A2AD21A2F00C07423 /* SwiftAudioEx */,
 			);
 			productName = MuseFin;
 			productReference = 71A07AE62ACB496C00DD899A /* MuseFin.app */;
@@ -240,7 +237,6 @@
 			mainGroup = 71A07ADD2ACB496C00DD899A;
 			packageReferences = (
 				71E99E9F2ACE320A0008CF2D /* XCRemoteSwiftPackageReference "Nuke" */,
-				717870392AD21A2F00C07423 /* XCRemoteSwiftPackageReference "SwiftAudioEx" */,
 			);
 			productRefGroup = 71A07AE72ACB496C00DD899A /* Products */;
 			projectDirPath = "";
@@ -517,14 +513,6 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		717870392AD21A2F00C07423 /* XCRemoteSwiftPackageReference "SwiftAudioEx" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/doublesymmetry/SwiftAudioEx";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 0.15.3;
-			};
-		};
 		71E99E9F2ACE320A0008CF2D /* XCRemoteSwiftPackageReference "Nuke" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/kean/Nuke";
@@ -536,11 +524,6 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		7178703A2AD21A2F00C07423 /* SwiftAudioEx */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 717870392AD21A2F00C07423 /* XCRemoteSwiftPackageReference "SwiftAudioEx" */;
-			productName = SwiftAudioEx;
-		};
 		71E99EA02ACE320A0008CF2D /* Nuke */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 71E99E9F2ACE320A0008CF2D /* XCRemoteSwiftPackageReference "Nuke" */;

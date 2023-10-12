@@ -6,16 +6,14 @@
 //
 
 import SwiftUI
-import SwiftAudioEx
 
 struct Blur: View {
     @ObservedObject var manager: AudioManager
     
     var body: some View {
         if
-            let currentTrack = manager.currentTrack,
-            let currentAlbum = manager.albumList[currentTrack.albumId],
-            let blurHash = currentAlbum.blurHash,
+            let track = manager.currentTrack,
+            let blurHash = track.blurHash,
             let image = UIImage(blurHash: blurHash, size: CGSize(width: 32, height: 32))
         {
             Image(uiImage: image)
@@ -42,7 +40,7 @@ struct MusicPlayerView: View {
     @ObservedObject var manager: AudioManager
     
     var body: some View {
-        if let currentTrack = manager.currentTrack, let currentAlbum = manager.albumList[currentTrack.albumId] {
+        if let metadata = manager.currentTrack {
             VStack(spacing: 16) {
                 HStack {
                     Button {
@@ -53,7 +51,7 @@ struct MusicPlayerView: View {
                     
                     Spacer()
                     
-                    Text(manager.list?.name ?? "")
+                    Text(metadata.listName)
                         .fontWeight(.bold)
                         .lineLimit(1)
                         .padding(.horizontal)
@@ -70,18 +68,18 @@ struct MusicPlayerView: View {
                 
                 Spacer()
                 
-                ListImage(list: currentAlbum)
+                ListImage(metadata: metadata)
                     .frame(maxWidth: .infinity)
                 
                 Spacer()
                 
                 VStack(alignment: .leading, spacing: 4) {
-                    Text(currentTrack.name)
+                    Text(metadata.name)
                         .font(.custom("Quicksand", size: 24))
                         .fontWeight(.bold)
                         .lineLimit(1)
                         
-                    Text(currentTrack.artists)
+                    Text(metadata.artist)
                         .font(.custom("Quicksand", size: 16))
                         .lineLimit(1)
                 }
@@ -90,18 +88,18 @@ struct MusicPlayerView: View {
                 VStack(spacing: 2) {
                     Slider(
                         value: $manager.elapsed,
-                        in: 0...manager.duration,
+                        in: 0...(manager.currentTrack?.duration ?? 0.0),
                         onEditingChanged: { editing in
                             manager.isEditing = editing
                             if !editing {
-                                manager.audioPlayer.seek(to: manager.elapsed)
+                                manager.seek(manager.elapsed)
                             }
                         }
                     )
                     HStack {
                         Text(convertSeconds(manager.elapsed))
                         Spacer()
-                        Text("-" + convertSeconds(manager.duration - manager.elapsed))
+                        Text("-" + convertSeconds((manager.currentTrack?.duration ?? 0.0) - manager.elapsed))
                     }
                 }
                 
@@ -115,7 +113,7 @@ struct MusicPlayerView: View {
                     Spacer()
                     
                     Button {
-                        try? manager.audioPlayer.previous()
+                        manager.prev()
                     } label: {
                         Image(systemName: "backward.end.fill")
                     }
@@ -124,9 +122,9 @@ struct MusicPlayerView: View {
                     
                     Button {
                         if manager.isPlaying {
-                            manager.audioPlayer.pause()
+                            manager.pause()
                         } else {
-                            manager.audioPlayer.play()
+                            manager.play()
                         }
                     } label: {
                         Image(systemName: manager.isPlaying ? "pause.circle.fill" : "play.circle.fill")
@@ -136,7 +134,7 @@ struct MusicPlayerView: View {
                     Spacer()
                     
                     Button {
-                        try? manager.audioPlayer.next()
+                        manager.next()
                     } label: {
                         Image(systemName: "forward.end.fill")
                     }

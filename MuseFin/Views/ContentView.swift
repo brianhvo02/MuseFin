@@ -20,7 +20,7 @@ enum Views {
 struct ContentView: View {
     @FetchRequest(sortDescriptors: []) var users: FetchedResults<UserInfo>
     @State private var loggedIn: Bool?
-    @StateObject private var manager = AudioManager()
+    @StateObject private var manager = AudioManager.shared
     @State private var showNowPlaying = false
     @State private var path = NavigationPath()
     
@@ -34,30 +34,30 @@ struct ContentView: View {
                                 .navigationTitle("Library")
                         }
                     }
-                    if let track = manager.currentTrack, let album = manager.albumList[track.albumId] {
+                    if let metadata = manager.currentTrack {
                         VStack {
                             Spacer()
                             HStack {
                                 HStack(spacing: 16) {
-                                    ListImage(list: album, width: 40, height: 40)
+                                    ListImage(metadata: metadata, width: 40, height: 40)
                                     
-                                    Text(track.name)
+                                    Text(metadata.name)
                                         .lineLimit(1)
                                 }
                                 Spacer()
                                 HStack(spacing: 16) {
                                     Button {
                                         if manager.isPlaying {
-                                            manager.audioPlayer.pause()
+                                            manager.pause()
                                         } else {
-                                            manager.audioPlayer.play()
+                                            manager.play()
                                         }
                                     } label: {
                                         Image(systemName: manager.isPlaying ? "pause.fill" : "play.fill")
                                             .font(.system(size: 20))
                                     }
                                     Button {
-                                        try? manager.audioPlayer.next()
+                                        manager.next()
                                     } label: {
                                         Image(systemName: "forward.fill")
                                             .font(.system(size: 20))

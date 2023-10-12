@@ -71,9 +71,9 @@ struct PlaylistView: View {
                         HStack(spacing: 12) {
                             if let album = albums[track.albumId] {
                                 ListImage(list: album, width: 48, height: 48)
-                                    .brightness(manager.list?.id == playlist.id && manager.currentTrack?.id == track.id ? -0.5 : 0)
+                                    .brightness(manager.listId == playlist.id && manager.currentTrack?.id == track.id ? -0.5 : 0)
                                     .overlay {
-                                        if manager.list?.id == playlist.id && manager.currentTrack?.id == track.id {
+                                        if manager.listId == playlist.id && manager.currentTrack?.id == track.id {
                                             Image(systemName: "chart.bar.xaxis")
                                                 .symbolEffect(.pulse, options: .repeating, isActive: manager.isPlaying)
                                                 .foregroundStyle(Color.secondaryText)

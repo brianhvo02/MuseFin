@@ -100,7 +100,7 @@ struct AlbumView: View {
                         }) {
                             HStack(spacing: 4) {
                                 Group {
-                                    if manager.list?.id == album.id && manager.currentTrack?.id == track.id {
+                                    if manager.listId == album.id && manager.currentTrack?.id == track.id {
                                         Image(systemName: "chart.bar.xaxis")
                                             .symbolEffect(.pulse, options: .repeating, isActive: manager.isPlaying)
                                             .foregroundStyle(Color.accentColor)

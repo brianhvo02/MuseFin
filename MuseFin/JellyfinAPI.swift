@@ -5,10 +5,9 @@
 //  Created by Brian Huy Vo on 10/2/23.
 //
 
-import Foundation
 import SystemConfiguration
 import UIKit
-import SwiftAudioEx
+import AVFoundation
 import Nuke
 
 var authHeader = "MediaBrowser Client=\"MuseFin\", Device=\"test\", DeviceId=\"test\", Version=\"0.0.0\""
@@ -266,7 +265,7 @@ class JellyfinAPI {
         return serverUrl
     }
     
-    func getAudioAsset(track: MiniTrack, list: MiniList) async throws -> DefaultAudioItem {
+    func getAudioAsset(track: MiniTrack, album: MiniList, listName: String) async throws -> (AVPlayerItem, TrackMetadata) {
         if JellyfinAPI.isConnectedToNetwork() {
             guard let _ = self.token else {
                 throw LoginError.unauthorized
@@ -275,37 +274,49 @@ class JellyfinAPI {
         
         var image = UIImage(named: "AppIconLight")
         
-        if let artwork = list.artwork {
+        if let artwork = album.artwork {
             image = UIImage(data: artwork)
         }
         
-        if JellyfinAPI.isConnectedToNetwork(), let artworkUrl = JellyfinAPI.shared.getItemImageUrl(itemId: list.id) {
+        if JellyfinAPI.isConnectedToNetwork(), let artworkUrl = JellyfinAPI.shared.getItemImageUrl(itemId: album.id) {
             if let result = try? await ImagePipeline.shared.image(for: artworkUrl) {
                 image = result
             }
         }
         
-        var path = URL(fileURLWithPath: track.id, relativeTo: musicDirectory)
+        var url = URL(fileURLWithPath: track.id, relativeTo: musicDirectory)
             .appendingPathExtension("aac")
-            .path
-        var sourceType: SourceType = .file
-        if !FileManager.default.fileExists(atPath: path) {
-            print("grabbing from server")
-            path = try! getAudioAssetUrl(trackId: track.id).absoluteString
-            sourceType = .stream
+        var assetIsStream = false
+        
+        if
+            !FileManager.default.fileExists(atPath: url.path),
+            let assetUrl = try? getAudioAssetUrl(trackId: track.id)
+        {
+            url = assetUrl
+            assetIsStream = true
         }
         
-        return DefaultAudioItemAssetOptionsProviding(
-            audioUrl: path,
-            artist: track.artists,
-            title: track.name, albumTitle: list.name,
-            sourceType: sourceType,
-            artwork: image,
-            options: sourceType == .stream ? [
+        let asset = AVURLAsset(
+            url: url,
+            options: assetIsStream ? [
                 "AVURLAssetHTTPHeaderFieldsKey": [
                     "Authorization": "\(authHeader), Token=\"\(token ?? "")\""
                 ]
             ] : [:]
+        )
+        
+        return (
+            AVPlayerItem(asset: asset),
+            TrackMetadata(
+                id: track.id,
+                name: track.name,
+                albumName: album.name,
+                artist: track.artists,
+                duration: track.duration,
+                listName: listName,
+                artwork: image,
+                blurHash: album.blurHash
+            )
         )
     }
     
