@@ -17,7 +17,7 @@ struct AlbumView: View {
     @State private var isDownloaded = false
     var album: MiniList
     
-    func loadTracks(trackIdx: Int) async {
+    func loadTracks(trackIdx: Int = 0) async {
         let connected = JellyfinAPI.isConnectedToNetwork()
         guard connected || tracks[trackIdx].downloaded == .full else {
             return
@@ -65,7 +65,7 @@ struct AlbumView: View {
             HStack {
                 Button {
                     Task {
-                        await loadTracks(trackIdx: 0)
+                        await loadTracks()
                     }
                 } label: {
                     Image(systemName: "play.fill")
@@ -79,7 +79,12 @@ struct AlbumView: View {
                 Spacer()
                 
                 Button {
-                    
+                    if let idx = tracks.indices.randomElement() {
+                        manager.shuffle = true
+                        Task {
+                            await loadTracks(trackIdx: idx)
+                        }
+                    }
                 } label: {
                     Image(systemName: "shuffle")
                     Text("Shuffle")

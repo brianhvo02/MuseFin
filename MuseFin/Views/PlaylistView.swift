@@ -23,6 +23,10 @@ struct PlaylistView: View {
         _offlinePlaylists = FetchRequest<OfflinePlaylist>(sortDescriptors: [], predicate: NSPredicate(format: "id == %@", playlist.id))
     }
     
+    func loadTracks(trackIdx: Int = 0) async {
+        await manager.loadTracks(list: playlist, trackIdx: trackIdx, trackList: tracks, albums: albums)
+    }
+    
     var body: some View {
         NavScrollView(manager: manager) {
             VStack(alignment: .center, spacing: 16) {
@@ -36,7 +40,7 @@ struct PlaylistView: View {
             HStack {
                 Button {
                     Task {
-                        await manager.loadTracks(list: playlist, trackIdx: 0, trackList: tracks, albums: albums)
+                        await loadTracks()
                     }
                 } label: {
                     Image(systemName: "play.fill")
@@ -50,7 +54,12 @@ struct PlaylistView: View {
                 Spacer()
                 
                 Button {
-                    
+                    if let idx = tracks.indices.randomElement() {
+                        manager.shuffle = true
+                        Task {
+                            await loadTracks(trackIdx: idx)
+                        }
+                    }
                 } label: {
                     Image(systemName: "shuffle")
                     Text("Shuffle")
@@ -65,7 +74,7 @@ struct PlaylistView: View {
                 ForEach(Array(tracks.enumerated()), id: \.offset) { idx, track in
                     Button(action: {
                         Task {
-                            await manager.loadTracks(list: playlist, trackIdx: idx, trackList: tracks, albums: albums)
+                            await loadTracks(trackIdx: idx)
                         }
                     }) {
                         HStack(spacing: 12) {

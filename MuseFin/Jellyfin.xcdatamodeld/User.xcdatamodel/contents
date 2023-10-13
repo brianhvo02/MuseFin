@@ -27,6 +27,9 @@
         <relationship name="album" maxCount="1" deletionRule="Deny" destinationEntity="OfflineAlbum" inverseName="tracks" inverseEntity="OfflineAlbum"/>
         <relationship name="playlists" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="OfflinePlaylist" inverseName="tracks" inverseEntity="OfflinePlaylist"/>
     </entity>
+    <entity name="PlayerState" representedClassName="PlayerState" syncable="YES" codeGenerationType="class">
+        <attribute name="listId" optional="YES" attributeType="String"/>
+    </entity>
     <entity name="UserInfo" representedClassName="UserInfo" syncable="YES" codeGenerationType="class">
         <attribute name="id" attributeType="String"/>
         <attribute name="offlineLists" attributeType="String" defaultValueString=""/>

@@ -38,14 +38,23 @@ struct LibraryView: View {
     @Environment(\.managedObjectContext) var ctx
     @FetchRequest(sortDescriptors: []) var users: FetchedResults<UserInfo>
     @State private var views: [BaseItem] = []
-    @State private var error: String?
     @ObservedObject var manager: AudioManager
     @State private var libraryItems: [Any] = []
     
     var body: some View {
-        if let error = error {
-            Text(error)
+        VStack(alignment: .center, spacing: 8) {
+            Image("LogoDark")
+                .resizable()
+                .frame(width: 75, height: 75)
+            Text("MuseFin")
+                .font(.custom("Quicksand", size: 24))
+            VStack(alignment: .center) {
+                Text("Your Jellyfin music,")
+                Text("straight from your server.")
+            }
         }
+        .fontWeight(.bold)
+        
         VStack(alignment: .leading) {
             Divider()
             
@@ -53,17 +62,21 @@ struct LibraryView: View {
                 PlaylistsView(manager: manager)
                     .navigationTitle("Playlists")
             }
-            LibraryItem(id: Views.artists, display: "Artists", icon: "music.mic") {
-                EmptyView()
-            }
+            
+//            LibraryItem(id: Views.artists, display: "Artists", icon: "music.mic") {
+//                EmptyView()
+//            }
+            
             LibraryItem(id: Views.albums, display: "Albums", icon: "square.stack") {
                 AlbumsView(manager: manager)
                     .navigationTitle("Albums")
                 EmptyView()
             }
-            LibraryItem(id: Views.songs, display: "Songs", icon: "music.note") {
-                EmptyView()
-            }
+            
+//            LibraryItem(id: Views.songs, display: "Songs", icon: "music.note") {
+//                EmptyView()
+//            }
+            
             Button(action: {
                 if users.indices.contains(0) {
                     ctx.delete(users[0])

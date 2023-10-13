@@ -95,6 +95,36 @@ class AudioManager: ObservableObject {
             queue: DispatchQueue.main,
             using: onElapsedTimeChange
         )
+        
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(handleInterruption),
+            name: AVAudioSession.interruptionNotification,
+            object: AVAudioSession.sharedInstance()
+        )
+    }
+    
+    @objc func handleInterruption(notification: Notification) {
+        guard 
+            let userInfo = notification.userInfo,
+            let typeValue = userInfo[AVAudioSessionInterruptionTypeKey] as? UInt,
+            let type = AVAudioSession.InterruptionType(rawValue: typeValue) 
+        else {
+            return
+        }
+
+        switch type {
+        case .began:
+            pause()
+
+        case .ended:
+            guard let optionsValue = userInfo[AVAudioSessionInterruptionOptionKey] as? UInt else { return }
+            let options = AVAudioSession.InterruptionOptions(rawValue: optionsValue)
+            if options.contains(.shouldResume) {
+                play()
+            }
+        default: break
+        }
     }
     
     func getAssetIndex(_ asset: AVPlayerItem) -> Int? {

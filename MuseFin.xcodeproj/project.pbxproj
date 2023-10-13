@@ -56,6 +56,7 @@
 		717870462AD3F0A800C07423 /* PlaylistView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaylistView.swift; sourceTree = "<group>"; };
 		717870482AD3F0E700C07423 /* PlaylistsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaylistsView.swift; sourceTree = "<group>"; };
 		7178704A2AD3F19100C07423 /* Playlist.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Playlist.swift; sourceTree = "<group>"; };
+		71959C7B2AD9C6D50072B840 /* MuseFin.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = MuseFin.entitlements; sourceTree = "<group>"; };
 		71A07AE62ACB496C00DD899A /* MuseFin.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MuseFin.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		71A07AE92ACB496C00DD899A /* MuseFinApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MuseFinApp.swift; sourceTree = "<group>"; };
 		71A07AEB2ACB496C00DD899A /* LibraryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryView.swift; sourceTree = "<group>"; };
@@ -116,6 +117,7 @@
 		71A07AE82ACB496C00DD899A /* MuseFin */ = {
 			isa = PBXGroup;
 			children = (
+				71959C7B2AD9C6D50072B840 /* MuseFin.entitlements */,
 				7117BCB42AD53BBD00328712 /* Minis.swift */,
 				71E99EA82ACE40690008CF2D /* Images */,
 				71A07B042ACB862300DD899A /* Views */,
@@ -425,6 +427,8 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = NO;
+				CODE_SIGN_ENTITLEMENTS = MuseFin/MuseFin.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"MuseFin/Preview Content\"";
@@ -448,6 +452,7 @@
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.BrianVo.MuseFin;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -460,6 +465,8 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = NO;
+				CODE_SIGN_ENTITLEMENTS = MuseFin/MuseFin.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"MuseFin/Preview Content\"";
@@ -483,6 +490,7 @@
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.BrianVo.MuseFin;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
