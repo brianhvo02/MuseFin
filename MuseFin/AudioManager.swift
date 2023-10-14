@@ -8,6 +8,7 @@
 import UIKit
 import AVFoundation
 import MediaPlayer
+import CarPlay
 
 struct TrackMetadata {
     let id: String
@@ -41,13 +42,16 @@ class AudioManager: ObservableObject {
     var trackAssets: [AVPlayerItem] = []
     var shuffledAssets: [AVPlayerItem] = []
     var trackMetadata: [TrackMetadata] = []
+    var assetObservers: [NSKeyValueObservation] = []
     var playerElapsedTimeObserver: Any?
     var playerCurrentItemObserver: NSKeyValueObservation?
     var nowPlayingInfo: [String: Any] = [:]
     
+    var cpShuffleButton: CPNowPlayingImageButton?
+    var cpRepeatButton: CPNowPlayingImageButton?
+    
     private init() {
         try? AVAudioSession.sharedInstance().setCategory(.playback, mode: .default)
-        try? AVAudioSession.sharedInstance().setActive(true)
         
         let commandCenter = MPRemoteCommandCenter.shared()
         
@@ -90,6 +94,7 @@ class AudioManager: ObservableObject {
              options:  [.new, .old],
              changeHandler: self.onCurrentItemChange
         )
+        
         playerElapsedTimeObserver = audioPlayer.addPeriodicTimeObserver(
             forInterval: CMTime(seconds: 1.0, preferredTimescale: CMTimeScale(NSEC_PER_SEC)),
             queue: DispatchQueue.main,
@@ -102,6 +107,38 @@ class AudioManager: ObservableObject {
             name: AVAudioSession.interruptionNotification,
             object: AVAudioSession.sharedInstance()
         )
+        
+        if let image = UIImage(systemName: "shuffle") {
+            cpShuffleButton = CPNowPlayingImageButton(image: image) { button in
+                self.toggleShuffle()
+            }
+        }
+        
+        setCPRepeat()
+    }
+    
+    func updateCP() {
+        if
+            let shuffleButton = AudioManager.shared.cpShuffleButton,
+            let repeatButton = AudioManager.shared.cpRepeatButton
+        {
+            CPNowPlayingTemplate.shared.updateNowPlayingButtons([
+                shuffleButton,
+                repeatButton
+            ])
+        }
+    }
+    
+    func setCPRepeat() {
+        if let image = UIImage(systemName: repeatMode == .track ? "repeat.1" : "repeat") {
+            let repeatButton = CPNowPlayingImageButton(image: image) { button in
+                self.toggleRepeat()
+            }
+            
+            repeatButton.isSelected = repeatMode != .off
+            
+            cpRepeatButton = repeatButton
+        }
     }
     
     @objc func handleInterruption(notification: Notification) {
@@ -140,6 +177,7 @@ class AudioManager: ObservableObject {
     }
     
     func play() {
+        try? AVAudioSession.sharedInstance().setActive(true)
         audioPlayer.play()
         isPlaying = true
         nowPlayingInfo[MPNowPlayingInfoPropertyElapsedPlaybackTime] = audioPlayer.currentTime().seconds
@@ -261,6 +299,7 @@ class AudioManager: ObservableObject {
         }
         
         shuffle.toggle()
+        cpShuffleButton?.isSelected = shuffle
         
         if shuffle {
             let shuffled = trackAssets.filter { $0 != currentAsset }.shuffled()
@@ -325,6 +364,12 @@ class AudioManager: ObservableObject {
         }
     }
     
+    @Sendable func onAssetLoad(asset: AVPlayerItem, change: NSKeyValueObservedChange<AVPlayerItem.Status>) {
+        if asset.status == .readyToPlay {
+            self.play()
+        }
+    }
+    
     @objc func onAssetEnd(_ notification: NSNotification) {
         if let asset = notification.object as? AVPlayerItem {
             if repeatMode == .track {
@@ -381,6 +426,7 @@ class AudioManager: ObservableObject {
         
         var metadata: [TrackMetadata] = []
         var assets: [AVPlayerItem] = []
+        var assetObservers: [NSKeyValueObservation] = []
         
         for track in trackList {
             if
@@ -388,13 +434,20 @@ class AudioManager: ObservableObject {
                 let (asset, metadatum) = try? await JellyfinAPI.shared.getAudioAsset(track: track, album: album, listName: list.name)
             {
                 NotificationCenter.default.addObserver(self, selector: #selector(self.onAssetEnd(_:)), name: NSNotification.Name.AVPlayerItemDidPlayToEndTime, object: asset)
+                let assetObserver = asset.observe(
+                    \.status,
+                     options:  [.new, .old],
+                     changeHandler: self.onAssetLoad
+                )
                 assets.append(asset)
                 metadata.append(metadatum)
+                assetObservers.append(assetObserver)
             }
         }
         
         trackAssets = assets
         trackMetadata = metadata
+        self.assetObservers = assetObservers
         
         DispatchQueue.main.async {
             self.listId = list.id
@@ -407,7 +460,6 @@ class AudioManager: ObservableObject {
             if wasShuffled {
                 self.toggleShuffle()
             }
-            self.play()
         }
     }
     
@@ -422,6 +474,9 @@ class AudioManager: ObservableObject {
             repeatMode = .off
             repeatOne()
         }
+        
+        setCPRepeat()
+        updateCP()
     }
     
     func repeatOne() {

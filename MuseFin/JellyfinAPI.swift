@@ -265,22 +265,44 @@ class JellyfinAPI {
         return serverUrl
     }
     
+    func getAlbumArtwork(_ album: MiniList) async -> UIImage? {
+        if let artwork = album.artwork {
+            return UIImage(data: artwork)
+        }
+        
+        if JellyfinAPI.isConnectedToNetwork(),
+           let artworkUrl = JellyfinAPI.shared.getItemImageUrl(itemId: album.id),
+           let result = try? await ImagePipeline.shared.image(for: artworkUrl)
+        { return result }
+        
+        return UIImage(named: "AppIconLight")
+    }
+    
+    func getAlbumArtwork(_ album: MiniList, completion: @escaping (UIImage?) -> ()) {
+        if let artwork = album.artwork {
+            completion(UIImage(data: artwork))
+            return
+        }
+        
+        if JellyfinAPI.isConnectedToNetwork(),
+           let artworkUrl = JellyfinAPI.shared.getItemImageUrl(itemId: album.id)
+        {
+            ImagePipeline.shared.loadImage(with: artworkUrl) { result in
+                switch result {
+                case let .success(res):
+                    completion(res.image)
+                default: break
+                }
+            }
+        } else {
+            completion(UIImage(named: "AppIconLight"))
+        }
+    }
+    
     func getAudioAsset(track: MiniTrack, album: MiniList, listName: String) async throws -> (AVPlayerItem, TrackMetadata) {
         if JellyfinAPI.isConnectedToNetwork() {
             guard let _ = self.token else {
                 throw LoginError.unauthorized
-            }
-        }
-        
-        var image = UIImage(named: "AppIconLight")
-        
-        if let artwork = album.artwork {
-            image = UIImage(data: artwork)
-        }
-        
-        if JellyfinAPI.isConnectedToNetwork(), let artworkUrl = JellyfinAPI.shared.getItemImageUrl(itemId: album.id) {
-            if let result = try? await ImagePipeline.shared.image(for: artworkUrl) {
-                image = result
             }
         }
         
@@ -314,7 +336,7 @@ class JellyfinAPI {
                 artist: track.artists,
                 duration: track.duration,
                 listName: listName,
-                artwork: image,
+                artwork: await getAlbumArtwork(album),
                 blurHash: album.blurHash
             )
         )

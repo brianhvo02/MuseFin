@@ -17,6 +17,7 @@
 		717870472AD3F0A800C07423 /* PlaylistView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 717870462AD3F0A800C07423 /* PlaylistView.swift */; };
 		717870492AD3F0E700C07423 /* PlaylistsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 717870482AD3F0E700C07423 /* PlaylistsView.swift */; };
 		7178704B2AD3F19100C07423 /* Playlist.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7178704A2AD3F19100C07423 /* Playlist.swift */; };
+		71959C812AD9C9A30072B840 /* CarPlaySceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 71959C802AD9C9A30072B840 /* CarPlaySceneDelegate.swift */; };
 		71A07AEA2ACB496C00DD899A /* MuseFinApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 71A07AE92ACB496C00DD899A /* MuseFinApp.swift */; };
 		71A07AEC2ACB496C00DD899A /* LibraryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 71A07AEB2ACB496C00DD899A /* LibraryView.swift */; };
 		71A07AEE2ACB497200DD899A /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 71A07AED2ACB497200DD899A /* Assets.xcassets */; };
@@ -57,6 +58,7 @@
 		717870482AD3F0E700C07423 /* PlaylistsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaylistsView.swift; sourceTree = "<group>"; };
 		7178704A2AD3F19100C07423 /* Playlist.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Playlist.swift; sourceTree = "<group>"; };
 		71959C7B2AD9C6D50072B840 /* MuseFin.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = MuseFin.entitlements; sourceTree = "<group>"; };
+		71959C802AD9C9A30072B840 /* CarPlaySceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CarPlaySceneDelegate.swift; sourceTree = "<group>"; };
 		71A07AE62ACB496C00DD899A /* MuseFin.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MuseFin.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		71A07AE92ACB496C00DD899A /* MuseFinApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MuseFinApp.swift; sourceTree = "<group>"; };
 		71A07AEB2ACB496C00DD899A /* LibraryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryView.swift; sourceTree = "<group>"; };
@@ -98,6 +100,14 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		71959C7F2AD9C98D0072B840 /* CarPlay */ = {
+			isa = PBXGroup;
+			children = (
+				71959C802AD9C9A30072B840 /* CarPlaySceneDelegate.swift */,
+			);
+			path = CarPlay;
+			sourceTree = "<group>";
+		};
 		71A07ADD2ACB496C00DD899A = {
 			isa = PBXGroup;
 			children = (
@@ -117,6 +127,7 @@
 		71A07AE82ACB496C00DD899A /* MuseFin */ = {
 			isa = PBXGroup;
 			children = (
+				71959C7F2AD9C98D0072B840 /* CarPlay */,
 				71959C7B2AD9C6D50072B840 /* MuseFin.entitlements */,
 				7117BCB42AD53BBD00328712 /* Minis.swift */,
 				71E99EA82ACE40690008CF2D /* Images */,
@@ -271,6 +282,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				71959C812AD9C9A30072B840 /* CarPlaySceneDelegate.swift in Sources */,
 				71A07B092ACC09AF00DD899A /* Jellyfin.xcdatamodeld in Sources */,
 				7117BCB92AD6847E00328712 /* AlphabetScroller.swift in Sources */,
 				71A07B002ACB6A8200DD899A /* JellyfinAPI.swift in Sources */,
@@ -438,7 +450,6 @@
 				INFOPLIST_FILE = MuseFin/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = MuseFin;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.entertainment";
-				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UIStatusBarStyle = UIStatusBarStyleDarkContent;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
@@ -476,7 +487,6 @@
 				INFOPLIST_FILE = MuseFin/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = MuseFin;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.entertainment";
-				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UIStatusBarStyle = UIStatusBarStyleDarkContent;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
