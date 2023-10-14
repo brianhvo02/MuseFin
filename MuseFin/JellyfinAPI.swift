@@ -107,7 +107,6 @@ class JellyfinAPI {
         
         do {
             let (data, res) = try await URLSession.shared.data(for: request)
-            let payload = try JSONDecoder().decode(T.self, from: data)
             
             if let res = res as? HTTPURLResponse {
                 if res.statusCode == 401 {
@@ -115,7 +114,7 @@ class JellyfinAPI {
                 }
                 
                 if res.statusCode == 200 {
-                    return payload
+                    return try JSONDecoder().decode(T.self, from: data)
                 }
                 
                 throw LoginError.notFound
@@ -146,26 +145,26 @@ class JellyfinAPI {
     }
     
     func tokenLogin(user: UserInfo) async throws -> User {
-        guard let serverAddr = user.serverUrl, let serverUrl = URL(string: serverAddr) else {
+        guard let serverUrl = URL(string: user.serverUrl) else {
             throw LoginError.notFound
         }
-        
-        guard let token = user.token, let id = user.id else {
-            throw LoginError.unauthorized
-        }
+//
+//        guard let token = user.token, let id = user.id else {
+//            throw LoginError.unauthorized
+//        }
         
         let result = try await request(
             "/Users/Me",
-            token: token, serverUrl: serverUrl,
+            token: user.token, serverUrl: serverUrl,
             contentType: User.self
         )
         
-        guard result.id == id else {
+        guard result.id == user.userId else {
             throw LoginError.unauthorized
         }
         
-        self.userId = result.id
-        self.token = user.token
+        userId = result.id
+        token = user.token
         self.serverUrl = serverUrl
         
         return result

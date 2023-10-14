@@ -6,14 +6,15 @@
 //
 
 import SwiftUI
+import SwiftData
 
 let alphabet = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J",
                 "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T",
                 "U", "V", "W", "X", "Y", "Z", "#"]
 
 struct AlbumsView: View {
-    @FetchRequest(sortDescriptors: []) var users: FetchedResults<UserInfo>
-    @FetchRequest(sortDescriptors: [SortDescriptor(\.artist)]) var offlineAlbums: FetchedResults<OfflineAlbum>
+    @Query var users: [UserInfo]
+    @Query(sort: [SortDescriptor(\OfflineAlbum.artist)]) var offlineAlbums: [OfflineAlbum]
     @State private var albums: [MiniList] = []
     @ObservedObject var manager: AudioManager
     @State private var searchText = ""
@@ -125,8 +126,8 @@ struct AlbumsView: View {
             } else {
                 albums = offlineAlbums.map { album in
                     return MiniList(
-                        id: album.id ?? "",
-                        name: album.name ?? "",
+                        id: album.id,
+                        name: album.name,
                         artist: album.artist,
                         artwork: album.artwork,
                         blurHash: album.blurHash

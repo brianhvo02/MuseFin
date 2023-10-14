@@ -7,6 +7,7 @@
 
 import SwiftUI
 import Network
+import SwiftData
 
 enum Views {
     case library
@@ -18,7 +19,7 @@ enum Views {
 }
 
 struct ContentView: View {
-    @FetchRequest(sortDescriptors: []) var users: FetchedResults<UserInfo>
+    @Query var users: [UserInfo]
     @State private var loggedIn: Bool?
     @StateObject private var manager = AudioManager.shared
     @State private var showNowPlaying = false
@@ -94,9 +95,9 @@ struct ContentView: View {
                     }
                     
                     guard JellyfinAPI.isConnectedToNetwork() else {
-                        JellyfinAPI.shared.serverUrl = URL(string: users[0].serverUrl ?? "")
+                        JellyfinAPI.shared.serverUrl = URL(string: users[0].serverUrl)
                         JellyfinAPI.shared.token = users[0].token
-                        JellyfinAPI.shared.userId = users[0].id
+                        JellyfinAPI.shared.userId = users[0].userId
                         loggedIn = true
                         return
                     }

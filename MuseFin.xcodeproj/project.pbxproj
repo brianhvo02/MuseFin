@@ -27,13 +27,13 @@
 		71A07AFE2ACB673400DD899A /* BaseItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 71A07AFD2ACB673400DD899A /* BaseItem.swift */; };
 		71A07B002ACB6A8200DD899A /* JellyfinAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 71A07AFF2ACB6A8100DD899A /* JellyfinAPI.swift */; };
 		71A07B022ACB6DE400DD899A /* Login.swift in Sources */ = {isa = PBXBuildFile; fileRef = 71A07B012ACB6DE400DD899A /* Login.swift */; };
-		71A07B092ACC09AF00DD899A /* Jellyfin.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 71A07B072ACC09AF00DD899A /* Jellyfin.xcdatamodeld */; };
-		71A07B0B2ACC0A5000DD899A /* DataController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 71A07B0A2ACC0A5000DD899A /* DataController.swift */; };
 		71A07B0F2ACCC17C00DD899A /* AlbumsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 71A07B0E2ACCC17C00DD899A /* AlbumsView.swift */; };
 		71A07B112ACCC44F00DD899A /* Album.swift in Sources */ = {isa = PBXBuildFile; fileRef = 71A07B102ACCC44F00DD899A /* Album.swift */; };
 		71A07B132ACCC85000DD899A /* Item.swift in Sources */ = {isa = PBXBuildFile; fileRef = 71A07B122ACCC85000DD899A /* Item.swift */; };
 		71A07B152ACCE0C400DD899A /* AlbumView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 71A07B142ACCE0C400DD899A /* AlbumView.swift */; };
 		71A07B172ACCEB6B00DD899A /* Track.swift in Sources */ = {isa = PBXBuildFile; fileRef = 71A07B162ACCEB6B00DD899A /* Track.swift */; };
+		71AE1EB72ADAA00900C612CC /* OfflineModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 71AE1EB62ADAA00900C612CC /* OfflineModels.swift */; };
+		71CB39862ADA35CA00CEDF10 /* UserInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 71CB39852ADA35CA00CEDF10 /* UserInfo.swift */; };
 		71E99E9C2ACDF7190008CF2D /* AudioManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 71E99E9B2ACDF7190008CF2D /* AudioManager.swift */; };
 		71E99E9E2ACE0D0B0008CF2D /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 71E99E9D2ACE0D0B0008CF2D /* ContentView.swift */; };
 		71E99EA12ACE320A0008CF2D /* Nuke in Frameworks */ = {isa = PBXBuildFile; productRef = 71E99EA02ACE320A0008CF2D /* Nuke */; };
@@ -70,13 +70,13 @@
 		71A07AFD2ACB673400DD899A /* BaseItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BaseItem.swift; sourceTree = "<group>"; };
 		71A07AFF2ACB6A8100DD899A /* JellyfinAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JellyfinAPI.swift; sourceTree = "<group>"; };
 		71A07B012ACB6DE400DD899A /* Login.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Login.swift; sourceTree = "<group>"; };
-		71A07B082ACC09AF00DD899A /* User.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = User.xcdatamodel; sourceTree = "<group>"; };
-		71A07B0A2ACC0A5000DD899A /* DataController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataController.swift; sourceTree = "<group>"; };
 		71A07B0E2ACCC17C00DD899A /* AlbumsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlbumsView.swift; sourceTree = "<group>"; };
 		71A07B102ACCC44F00DD899A /* Album.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Album.swift; sourceTree = "<group>"; };
 		71A07B122ACCC85000DD899A /* Item.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Item.swift; sourceTree = "<group>"; };
 		71A07B142ACCE0C400DD899A /* AlbumView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlbumView.swift; sourceTree = "<group>"; };
 		71A07B162ACCEB6B00DD899A /* Track.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Track.swift; sourceTree = "<group>"; };
+		71AE1EB62ADAA00900C612CC /* OfflineModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OfflineModels.swift; sourceTree = "<group>"; };
+		71CB39852ADA35CA00CEDF10 /* UserInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserInfo.swift; sourceTree = "<group>"; };
 		71E99E9B2ACDF7190008CF2D /* AudioManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioManager.swift; sourceTree = "<group>"; };
 		71E99E9D2ACE0D0B0008CF2D /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		71E99EA92ACE40980008CF2D /* LogoLight.svg */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = LogoLight.svg; sourceTree = "<group>"; };
@@ -108,6 +108,15 @@
 			path = CarPlay;
 			sourceTree = "<group>";
 		};
+		71959C822ADA35460072B840 /* SwiftData */ = {
+			isa = PBXGroup;
+			children = (
+				71CB39852ADA35CA00CEDF10 /* UserInfo.swift */,
+				71AE1EB62ADAA00900C612CC /* OfflineModels.swift */,
+			);
+			path = SwiftData;
+			sourceTree = "<group>";
+		};
 		71A07ADD2ACB496C00DD899A = {
 			isa = PBXGroup;
 			children = (
@@ -127,6 +136,7 @@
 		71A07AE82ACB496C00DD899A /* MuseFin */ = {
 			isa = PBXGroup;
 			children = (
+				71959C822ADA35460072B840 /* SwiftData */,
 				71959C7F2AD9C98D0072B840 /* CarPlay */,
 				71959C7B2AD9C6D50072B840 /* MuseFin.entitlements */,
 				7117BCB42AD53BBD00328712 /* Minis.swift */,
@@ -135,12 +145,10 @@
 				71A07AFC2ACB66E900DD899A /* DTOs */,
 				71A07AFA2ACB530500DD899A /* Info.plist */,
 				71A07AE92ACB496C00DD899A /* MuseFinApp.swift */,
-				71A07B072ACC09AF00DD899A /* Jellyfin.xcdatamodeld */,
 				71A07AED2ACB497200DD899A /* Assets.xcassets */,
 				71A07AF92ACB52CB00DD899A /* Quicksand.ttf */,
 				71A07AEF2ACB497200DD899A /* Preview Content */,
 				71A07AFF2ACB6A8100DD899A /* JellyfinAPI.swift */,
-				71A07B0A2ACC0A5000DD899A /* DataController.swift */,
 				71E99E9B2ACDF7190008CF2D /* AudioManager.swift */,
 				717870402AD24B9D00C07423 /* BlurHashDecoder.swift */,
 				7117BCB62AD680DE00328712 /* Utils.swift */,
@@ -283,7 +291,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				71959C812AD9C9A30072B840 /* CarPlaySceneDelegate.swift in Sources */,
-				71A07B092ACC09AF00DD899A /* Jellyfin.xcdatamodeld in Sources */,
 				7117BCB92AD6847E00328712 /* AlphabetScroller.swift in Sources */,
 				71A07B002ACB6A8200DD899A /* JellyfinAPI.swift in Sources */,
 				71E99E9E2ACE0D0B0008CF2D /* ContentView.swift in Sources */,
@@ -293,16 +300,17 @@
 				71E99E9C2ACDF7190008CF2D /* AudioManager.swift in Sources */,
 				71A07AEC2ACB496C00DD899A /* LibraryView.swift in Sources */,
 				71A07B132ACCC85000DD899A /* Item.swift in Sources */,
+				71AE1EB72ADAA00900C612CC /* OfflineModels.swift in Sources */,
 				7178703F2AD242FD00C07423 /* MusicPlayerView.swift in Sources */,
 				71A07B0F2ACCC17C00DD899A /* AlbumsView.swift in Sources */,
 				71A07B172ACCEB6B00DD899A /* Track.swift in Sources */,
 				71A07B152ACCE0C400DD899A /* AlbumView.swift in Sources */,
 				717870412AD24B9D00C07423 /* BlurHashDecoder.swift in Sources */,
-				71A07B0B2ACC0A5000DD899A /* DataController.swift in Sources */,
 				71A07B022ACB6DE400DD899A /* Login.swift in Sources */,
 				717870472AD3F0A800C07423 /* PlaylistView.swift in Sources */,
 				71A07AEA2ACB496C00DD899A /* MuseFinApp.swift in Sources */,
 				717870432AD276E200C07423 /* NavScrollView.swift in Sources */,
+				71CB39862ADA35CA00CEDF10 /* UserInfo.swift in Sources */,
 				71A07B112ACCC44F00DD899A /* Album.swift in Sources */,
 				7178704B2AD3F19100C07423 /* Playlist.swift in Sources */,
 				71A07AFE2ACB673400DD899A /* BaseItem.swift in Sources */,
@@ -563,19 +571,6 @@
 			productName = NukeVideo;
 		};
 /* End XCSwiftPackageProductDependency section */
-
-/* Begin XCVersionGroup section */
-		71A07B072ACC09AF00DD899A /* Jellyfin.xcdatamodeld */ = {
-			isa = XCVersionGroup;
-			children = (
-				71A07B082ACC09AF00DD899A /* User.xcdatamodel */,
-			);
-			currentVersion = 71A07B082ACC09AF00DD899A /* User.xcdatamodel */;
-			path = Jellyfin.xcdatamodeld;
-			sourceTree = "<group>";
-			versionGroupType = wrapper.xcdatamodel;
-		};
-/* End XCVersionGroup section */
 	};
 	rootObject = 71A07ADE2ACB496C00DD899A /* Project object */;
 }

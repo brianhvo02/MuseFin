@@ -6,10 +6,11 @@
 //
 
 import SwiftUI
+import SwiftData
 
 struct PlaylistsView: View {
-    @FetchRequest(sortDescriptors: []) var users: FetchedResults<UserInfo>
-    @FetchRequest(sortDescriptors: [SortDescriptor(\.name)]) var offlinePlaylists: FetchedResults<OfflinePlaylist>
+    @Query var users: [UserInfo]
+    @Query(sort: [SortDescriptor(\OfflinePlaylist.name)]) var offlinePlaylists: [OfflinePlaylist]
     @State private var playlists: [MiniList] = []
     @State private var error: String?
     @ObservedObject var manager: AudioManager
@@ -65,8 +66,8 @@ struct PlaylistsView: View {
                 } else {
                     playlists = offlinePlaylists.map { playlist in
                         return MiniList(
-                            id: playlist.id ?? "",
-                            name: playlist.name ?? "",
+                            id: playlist.id,
+                            name: playlist.name,
                             artwork: playlist.artwork
                         )
                     }

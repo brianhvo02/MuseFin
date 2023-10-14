@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import SwiftData
 
 struct LoginView: View {
     @Binding var loggedIn: Bool?
@@ -13,8 +14,8 @@ struct LoginView: View {
     @State private var username: String = ""
     @State private var password: String = ""
     @State private var error: String = ""
-    @Environment(\.managedObjectContext) var ctx
-    @FetchRequest(sortDescriptors: []) var users: FetchedResults<UserInfo>
+    @Environment(\.modelContext) var ctx
+    @Query var users: [UserInfo]
     
     func submitLogin() async {
         guard let serverUrl = URL(string: serverAddr) else {
@@ -29,12 +30,14 @@ struct LoginView: View {
                 password: password
             )
             
-            let user = UserInfo(context: ctx)
-            user.id = payload.user.id
-            user.token = payload.accessToken
-            user.serverUrl = serverUrl.absoluteString
-            user.offlineLists = ""
-            try ctx.save()
+            let user = UserInfo(
+                userId: payload.user.id,
+                offlineLists: [String](),
+                serverUrl: serverUrl.absoluteString,
+                token: payload.accessToken
+            )
+            
+            ctx.insert(user)
             loggedIn = true
         } catch {
             self.error = error.localizedDescription

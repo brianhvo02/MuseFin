@@ -6,19 +6,26 @@
 //
 
 import SwiftUI
+import SwiftData
 
 @main
 struct MuseFinApp: App {
-    @StateObject private var dataController = DataController()
+//    @StateObject private var dataController = DataController()
     
     var body: some Scene {
         WindowGroup {
             ContentView()
-                .environment(\.managedObjectContext, dataController.container.viewContext)
+//                .environment(\.managedObjectContext, dataController.container.viewContext)
                 .foregroundStyle(.primaryText)
                 .font(.custom("Quicksand", size: 16))
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .background(Color.background)
         }
+        .modelContainer(for: [
+            UserInfo.self,
+            OfflineAlbum.self,
+            OfflinePlaylist.self,
+            OfflineTrack.self
+        ])
     }
 }

@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import SwiftData
 
 struct LibraryItem<Content: View>: View {
     let id: Views
@@ -35,8 +36,8 @@ struct LibraryItem<Content: View>: View {
 
 struct LibraryView: View {
     @Binding var loggedIn: Bool?
-    @Environment(\.managedObjectContext) var ctx
-    @FetchRequest(sortDescriptors: []) var users: FetchedResults<UserInfo>
+    @Environment(\.modelContext) var ctx
+    @Query var users: [UserInfo]
     @State private var views: [BaseItem] = []
     @ObservedObject var manager: AudioManager
     @State private var libraryItems: [Any] = []
@@ -80,7 +81,6 @@ struct LibraryView: View {
             Button(action: {
                 if users.indices.contains(0) {
                     ctx.delete(users[0])
-                    try? ctx.save()
                     loggedIn = false
                 }
             }) {
