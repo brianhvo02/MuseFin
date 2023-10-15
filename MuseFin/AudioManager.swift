@@ -13,6 +13,7 @@ import CarPlay
 struct TrackMetadata {
     let id: String
     let name: String
+    let albumId: String
     let albumName: String
     let artist: String
     let duration: Double
@@ -92,7 +93,7 @@ class AudioManager: ObservableObject {
         playerCurrentItemObserver = audioPlayer.observe(
             \.currentItem,
              options:  [.new, .old],
-             changeHandler: self.onCurrentItemChange
+             changeHandler: onCurrentItemChange
         )
         
         playerElapsedTimeObserver = audioPlayer.addPeriodicTimeObserver(
@@ -107,38 +108,6 @@ class AudioManager: ObservableObject {
             name: AVAudioSession.interruptionNotification,
             object: AVAudioSession.sharedInstance()
         )
-        
-        if let image = UIImage(systemName: "shuffle") {
-            cpShuffleButton = CPNowPlayingImageButton(image: image) { button in
-                self.toggleShuffle()
-            }
-        }
-        
-        setCPRepeat()
-    }
-    
-    func updateCP() {
-        if
-            let shuffleButton = AudioManager.shared.cpShuffleButton,
-            let repeatButton = AudioManager.shared.cpRepeatButton
-        {
-            CPNowPlayingTemplate.shared.updateNowPlayingButtons([
-                shuffleButton,
-                repeatButton
-            ])
-        }
-    }
-    
-    func setCPRepeat() {
-        if let image = UIImage(systemName: repeatMode == .track ? "repeat.1" : "repeat") {
-            let repeatButton = CPNowPlayingImageButton(image: image) { button in
-                self.toggleRepeat()
-            }
-            
-            repeatButton.isSelected = repeatMode != .off
-            
-            cpRepeatButton = repeatButton
-        }
     }
     
     @objc func handleInterruption(notification: Notification) {
@@ -220,14 +189,11 @@ class AudioManager: ObservableObject {
             } else {
                 let prevAsset = getAssets()[trackIdx - 1]
                 audioPlayer.replaceCurrentItem(with: prevAsset)
-                audioPlayer.seek(to: CMTime.zero)
                 audioPlayer.insert(asset, after: prevAsset)
             }
             
             play()
         }
-        
-        audioPlayer.seek(to: CMTime.zero)
     }
     
     func next() {
@@ -256,8 +222,6 @@ class AudioManager: ObservableObject {
             
             play()
         }
-        
-        audioPlayer.seek(to: CMTime.zero)
     }
     
     func clearQueue() {
@@ -357,6 +321,7 @@ class AudioManager: ObservableObject {
             let asset = player.currentItem,
             let trackIdx = trackAssets.firstIndex(of: asset)
         {
+            player.seek(to: CMTime.zero)
             DispatchQueue.main.async {
                 self.currentTrack = self.trackMetadata[trackIdx]
                 self.setNowPlaying()
@@ -388,8 +353,6 @@ class AudioManager: ObservableObject {
                 audioPlayer.advanceToNextItem()
                 addToQueue(asset: getAssets().last)
                 
-                audioPlayer.seek(to: CMTime.zero)
-                
                 if repeatMode == .list {
                     play()
                 }
@@ -417,7 +380,6 @@ class AudioManager: ObservableObject {
                 if wasShuffled {
                     self.toggleShuffle()
                 }
-                self.seek(0)
                 self.play()
             }
             
@@ -474,9 +436,6 @@ class AudioManager: ObservableObject {
             repeatMode = .off
             repeatOne()
         }
-        
-        setCPRepeat()
-        updateCP()
     }
     
     func repeatOne() {

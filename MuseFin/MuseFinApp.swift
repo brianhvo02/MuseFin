@@ -10,12 +10,9 @@ import SwiftData
 
 @main
 struct MuseFinApp: App {
-//    @StateObject private var dataController = DataController()
-    
     var body: some Scene {
         WindowGroup {
             ContentView()
-//                .environment(\.managedObjectContext, dataController.container.viewContext)
                 .foregroundStyle(.primaryText)
                 .font(.custom("Quicksand", size: 16))
                 .frame(maxWidth: .infinity, maxHeight: .infinity)

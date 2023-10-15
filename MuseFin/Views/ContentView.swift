@@ -87,8 +87,6 @@ struct ContentView: View {
         } else {
             Spacer()
                 .onAppear {
-                    manager.updateCP()
-                    
                     guard users.indices.contains(0) else {
                         loggedIn = false
                         return

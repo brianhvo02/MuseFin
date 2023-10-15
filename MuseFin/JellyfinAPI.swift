@@ -148,10 +148,6 @@ class JellyfinAPI {
         guard let serverUrl = URL(string: user.serverUrl) else {
             throw LoginError.notFound
         }
-//
-//        guard let token = user.token, let id = user.id else {
-//            throw LoginError.unauthorized
-//        }
         
         let result = try await request(
             "/Users/Me",
@@ -264,27 +260,27 @@ class JellyfinAPI {
         return serverUrl
     }
     
-    func getAlbumArtwork(_ album: MiniList) async -> UIImage? {
-        if let artwork = album.artwork {
+    func getListArtwork(_ list: MiniList) async -> UIImage? {
+        if let artwork = list.artwork {
             return UIImage(data: artwork)
         }
         
         if JellyfinAPI.isConnectedToNetwork(),
-           let artworkUrl = JellyfinAPI.shared.getItemImageUrl(itemId: album.id),
+           let artworkUrl = JellyfinAPI.shared.getItemImageUrl(itemId: list.id),
            let result = try? await ImagePipeline.shared.image(for: artworkUrl)
         { return result }
         
         return UIImage(named: "AppIconLight")
     }
     
-    func getAlbumArtwork(_ album: MiniList, completion: @escaping (UIImage?) -> ()) {
-        if let artwork = album.artwork {
+    func getListArtwork(_ list: MiniList, completion: @escaping (UIImage?) -> ()) {
+        if let artwork = list.artwork {
             completion(UIImage(data: artwork))
             return
         }
         
         if JellyfinAPI.isConnectedToNetwork(),
-           let artworkUrl = JellyfinAPI.shared.getItemImageUrl(itemId: album.id)
+           let artworkUrl = JellyfinAPI.shared.getItemImageUrl(itemId: list.id)
         {
             ImagePipeline.shared.loadImage(with: artworkUrl) { result in
                 switch result {
@@ -331,11 +327,12 @@ class JellyfinAPI {
             TrackMetadata(
                 id: track.id,
                 name: track.name,
+                albumId: album.id,
                 albumName: album.name,
                 artist: track.artists,
                 duration: track.duration,
                 listName: listName,
-                artwork: await getAlbumArtwork(album),
+                artwork: await getListArtwork(album),
                 blurHash: album.blurHash
             )
         )
